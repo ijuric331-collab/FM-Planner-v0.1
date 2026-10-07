@@ -1,0 +1,2687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<title>FM26 Planner</title>
+<style>
+  :root {
+    --bg: #0b1220;
+    --bg-2: #0e1626;
+    --panel: #131c2e;
+    --panel-2: #1a2438;
+    --panel-3: #223049;
+    --border: #22304a;
+    --border-2: #2e405f;
+    --text: #e6eefc;
+    --text-dim: #8ba3c4;
+    --text-dim-2: #5f7a9c;
+    --accent: #3b82f6;
+    --accent-2: #60a5fa;
+    --accent-glow: rgba(59,130,246,.4);
+    --gold: #fbbf24;
+    --gold-glow: rgba(251,191,36,.45);
+    --green: #22c55e;
+    --red: #ef4444;
+    --shadow: 0 8px 32px rgba(0,0,0,.5);
+    --shadow-lg: 0 20px 60px rgba(0,0,0,.7);
+    --grass-1: #1c5730;
+    --grass-2: #175029;
+    --line: rgba(255,255,255,.82);
+    --role-grad: linear-gradient(135deg, #3b82f6, #6366f1);
+  }
+  html[data-theme="light"] {
+    --bg: #eef3f9;
+    --bg-2: #e2ebf4;
+    --panel: #ffffff;
+    --panel-2: #f4f8fc;
+    --panel-3: #e8eff7;
+    --border: #d5e0ec;
+    --border-2: #b9c9db;
+    --text: #142031;
+    --text-dim: #4a5f78;
+    --text-dim-2: #7c8fa5;
+    --accent: #2563eb;
+    --accent-2: #3b82f6;
+    --accent-glow: rgba(37,99,235,.28);
+    --shadow: 0 8px 32px rgba(20,40,80,.14);
+    --shadow-lg: 0 20px 50px rgba(20,40,80,.22);
+    --grass-1: #3a9e57;
+    --grass-2: #349153;
+    --line: rgba(255,255,255,.92);
+    --role-grad: linear-gradient(135deg, #2563eb, #4f46e5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overscroll-behavior: none; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+    transition: background .25s, color .25s;
+  }
+
+  /* =========================================================
+     WIZARD
+     ========================================================= */
+  .wizard {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(59,130,246,.18) 0%, transparent 55%),
+      radial-gradient(circle at 80% 80%, rgba(139,92,246,.15) 0%, transparent 55%),
+      var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .wizard.hidden { display: none; }
+  .wizard-card {
+    background: var(--panel);
+    border: 1px solid var(--border-2);
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 720px;
+    padding: 32px;
+    animation: wizardIn .35s cubic-bezier(.2,.9,.3,1.2);
+  }
+  @keyframes wizardIn {
+    from { opacity: 0; transform: translateY(20px) scale(.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .wizard-header { text-align: center; margin-bottom: 22px; position: relative; }
+  .wizard-header .logo {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: -.03em;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa 60%, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .wizard-header .logo::before { content: '⚽'; -webkit-text-fill-color: initial; font-size: 30px; }
+  .wizard-header p { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
+
+  .wiz-load-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--panel-2);
+    border: 1px solid var(--border-2);
+    color: var(--text);
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .15s;
+    z-index: 1;
+  }
+  .wiz-load-btn:hover { border-color: var(--accent); color: var(--accent-2); transform: translateY(-1px); }
+  .wiz-load-btn:active { transform: scale(.97); }
+
+  .wizard-step { display: none; }
+  .wizard-step.active { display: block; animation: stepIn .25s ease-out; }
+  @keyframes stepIn {
+    from { opacity: 0; transform: translateX(8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .wizard-step h2 {
+    font-size: 15px;
+    font-weight: 800;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--text);
+  }
+  .wizard-step h2 .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px; height: 26px;
+    background: var(--role-grad);
+    border-radius: 8px;
+    font-size: 12px;
+    color: white;
+    font-weight: 900;
+    box-shadow: 0 3px 10px var(--accent-glow);
+  }
+
+  .wizard-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 2px;
+  }
+  .wiz-option {
+    background: var(--panel-2);
+    border: 1.5px solid var(--border-2);
+    border-radius: 12px;
+    padding: 14px 14px;
+    cursor: pointer;
+    transition: all .15s;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text);
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+  }
+  .wiz-option:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,.3);
+  }
+  .wiz-option.selected {
+    background: var(--role-grad);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 6px 20px var(--accent-glow);
+  }
+  .wiz-option .wo-title { font-weight: 800; font-size: 13.5px; letter-spacing: -.01em; }
+  .wiz-option .wo-sub { font-size: 11px; opacity: .8; font-weight: 600; }
+
+  .wiz-name-field { margin-top: 8px; }
+  .wiz-name-field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-bottom: 8px;
+  }
+  .wiz-name-field input {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1.5px solid var(--border-2);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .wiz-name-field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  .wiz-name-field input::placeholder { color: var(--text-dim-2); font-weight: 500; }
+  .wiz-name-hint { font-size: 11px; color: var(--text-dim-2); margin-top: 6px; }
+
+  .wizard-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .wizard-footer .step-dots { display: flex; gap: 6px; }
+  .wizard-footer .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--border-2);
+    transition: all .2s;
+  }
+  .wizard-footer .dot.active {
+    background: var(--accent);
+    width: 22px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+  .wizard-footer .dot.done { background: var(--accent-2); }
+
+  .btn-lg {
+    padding: 11px 22px;
+    font-size: 13.5px;
+    font-weight: 800;
+    border-radius: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    border: 1px solid var(--border-2);
+    background: var(--panel-2);
+    color: var(--text);
+    transition: all .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-lg:hover { border-color: var(--accent); color: var(--accent-2); }
+  .btn-lg.primary {
+    background: var(--role-grad);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 16px var(--accent-glow);
+  }
+  .btn-lg.primary:hover { box-shadow: 0 6px 22px var(--accent-glow); color: white; }
+  .btn-lg:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-lg:disabled:hover { border-color: var(--border-2); color: var(--text); }
+
+  /* =========================================================
+     APP — 3 columns
+     ========================================================= */
+  .app {
+    display: grid;
+    grid-template-columns: 1fr 260px 320px;
+    grid-template-rows: 60px 1fr;
+    height: 100vh;
+    height: 100dvh;
+    width: 100%;
+  }
+  .app.hidden { display: none; }
+
+  header {
+    grid-column: 1/4;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    z-index: 50;
+    position: relative;
+  }
+  .logo {
+    font-weight: 900;
+    font-size: 15px;
+    letter-spacing: -.02em;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-right: 10px;
+    border-right: 1px solid var(--border);
+    margin-right: 4px;
+  }
+  .logo::before { content: '⚽'; -webkit-text-fill-color: initial; font-size: 17px; }
+
+  .header-controls { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+  .header-actions { display: flex; gap: 6px; align-items: center; }
+
+  select.native {
+    appearance: auto;
+    -webkit-appearance: menulist;
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border-2);
+    border-radius: 9px;
+    padding: 8px 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color .15s;
+    max-width: 210px;
+    min-width: 130px;
+  }
+  select.native:hover { border-color: var(--accent); }
+  select.native:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+  html[data-theme="light"] select.native { background: #fff; }
+
+  .phase-toggle {
+    display: flex;
+    background: var(--panel-2);
+    border: 1px solid var(--border-2);
+    border-radius: 11px;
+    padding: 3px;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+  .phase-toggle button {
+    background: transparent;
+    color: var(--text-dim);
+    border: none;
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: inherit;
+    white-space: nowrap;
+    letter-spacing: .02em;
+  }
+  .phase-toggle button:hover { color: var(--text); }
+  .phase-toggle button.active {
+    background: var(--role-grad);
+    color: white;
+    box-shadow: 0 2px 10px var(--accent-glow);
+  }
+
+  .btn {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border-2);
+    border-radius: 9px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent-2); }
+  .btn:active { transform: scale(.97); }
+  .btn.primary {
+    background: var(--role-grad);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 3px 12px var(--accent-glow);
+  }
+  .btn.primary:hover { color: white; box-shadow: 0 5px 18px var(--accent-glow); }
+  .btn.icon { padding: 8px 10px; font-size: 14px; }
+
+  /* =========================================================
+     PITCH
+     ========================================================= */
+  .pitch-wrap {
+    position: relative;
+    background:
+      radial-gradient(circle at 50% 40%, var(--accent-glow) 0%, transparent 55%),
+      var(--bg-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow: hidden;
+  }
+  .pitch {
+    position: relative;
+    height: 100%;
+    aspect-ratio: 68 / 105;
+    max-height: 100%;
+    max-width: 100%;
+    filter: drop-shadow(0 20px 50px rgba(0,0,0,.6));
+  }
+  html[data-theme="light"] .pitch { filter: drop-shadow(0 14px 36px rgba(20,40,80,.22)); }
+  .pitch svg { width: 100%; height: 100%; display: block; border-radius: 10px; shape-rendering: geometricPrecision; }
+
+  .players-layer { position: absolute; inset: 0; pointer-events: none; }
+
+  /* =========================================================
+     PLAYER TOKEN
+     ========================================================= */
+  .player {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    user-select: none;
+    pointer-events: auto;
+    transition: transform .15s;
+    will-change: left, top;
+    touch-action: none;
+    z-index: 1;
+  }
+  .player:hover { transform: translate(-50%, -50%) scale(1.05); z-index: 4; }
+  .player.dragging { cursor: grabbing; transition: none; z-index: 20; transform: translate(-50%, -50%) scale(1.08); }
+
+  .player .pos-badge {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #21406b, #16283f);
+    border: 2.5px solid #3b82f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 13px;
+    color: white;
+    letter-spacing: .03em;
+    box-shadow: 0 6px 18px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.15);
+    transition: border-color .2s, box-shadow .25s;
+    position: relative;
+    flex-shrink: 0;
+  }
+  html[data-theme="light"] .player .pos-badge {
+    background: linear-gradient(145deg, #dbeafe, #bfdbfe);
+    border-color: #2563eb;
+    color: #1e3a8a;
+    box-shadow: 0 6px 16px rgba(20,40,80,.2), inset 0 1px 0 rgba(255,255,255,.7);
+  }
+  .player:hover .pos-badge { border-color: var(--accent-2); }
+  .player.selected .pos-badge {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 5px var(--gold-glow), 0 8px 24px rgba(0,0,0,.6);
+  }
+
+  /* Role label */
+  .player .role-label {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #fff;
+    background: var(--role-grad);
+    border: 1.5px solid rgba(255,255,255,.28);
+    border-radius: 8px;
+    padding: 5px 10px;
+    line-height: 1.2;
+    text-align: center;
+    letter-spacing: .01em;
+    box-shadow: 0 5px 14px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.15);
+    white-space: normal;
+    word-break: break-word;
+    min-width: 40px;
+    max-width: 130px;
+    transition: max-width .15s ease;
+    will-change: max-width;
+  }
+  .player .role-label.empty {
+    background: var(--panel-3);
+    color: var(--text-dim-2);
+    border: 1.5px dashed var(--border-2);
+    font-weight: 600;
+    box-shadow: none;
+  }
+  html[data-theme="light"] .player .role-label { box-shadow: 0 5px 14px rgba(20,40,80,.25); }
+  html[data-theme="light"] .player .role-label.empty {
+    background: #eef3f9;
+    color: #7c8fa5;
+  }
+
+  /* =========================================================
+     ROLE MENU
+     ========================================================= */
+  .role-menu {
+    position: absolute;
+    z-index: 200;
+    width: 300px;
+    max-width: calc(100vw - 24px);
+    background: var(--panel);
+    border: 1px solid var(--border-2);
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg), 0 0 0 1px var(--accent-glow);
+    overflow: hidden;
+    animation: popIn .16s cubic-bezier(.2,.9,.3,1.2);
+    display: flex;
+    flex-direction: column;
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(.95) translateY(-6px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .role-menu-header {
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--panel-2);
+    flex-shrink: 0;
+  }
+  .role-menu-header .title { display: flex; align-items: center; gap: 11px; min-width: 0; }
+  .role-menu-header .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px; height: 38px;
+    background: var(--role-grad);
+    border-radius: 11px;
+    font-weight: 900;
+    font-size: 13px;
+    color: white;
+    box-shadow: 0 4px 12px var(--accent-glow);
+    letter-spacing: .02em;
+    flex-shrink: 0;
+  }
+  .role-menu-header .name { font-size: 13.5px; font-weight: 800; letter-spacing: -.01em; }
+  .role-menu-header .phase {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    font-weight: 800;
+    margin-top: 2px;
+  }
+  .role-menu-header .close {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 6px 9px;
+    border-radius: 9px;
+    transition: all .15s;
+    font-family: inherit;
+    flex-shrink: 0;
+  }
+  .role-menu-header .close:hover { background: var(--panel-3); color: var(--text); }
+
+  .role-menu-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel-2);
+    flex-shrink: 0;
+  }
+  .role-menu-tabs button {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    padding: 11px 8px;
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    border-bottom: 2px solid transparent;
+    transition: all .15s;
+    letter-spacing: .02em;
+  }
+  .role-menu-tabs button:hover { color: var(--text); }
+  .role-menu-tabs button.active {
+    color: var(--accent-2);
+    border-bottom-color: var(--accent-2);
+  }
+
+  .role-list {
+    max-height: min(360px, 55vh);
+    overflow-y: auto;
+    padding: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-2) transparent;
+  }
+  .role-list::-webkit-scrollbar { width: 6px; }
+  .role-list::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+  .role-option {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 11px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background .12s;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.3;
+    font-weight: 600;
+    min-height: 42px;
+  }
+  .role-option:hover { background: var(--panel-2); }
+  .role-option.selected {
+    background: var(--role-grad);
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 3px 12px var(--accent-glow);
+  }
+  .role-option.selected::after {
+    content: '✓';
+    margin-left: auto;
+    color: white;
+    font-weight: 900;
+    font-size: 14px;
+  }
+
+  .pi-tab-content {
+    padding: 12px 14px;
+    overflow-y: auto;
+    max-height: min(400px, 60vh);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-2) transparent;
+  }
+  .pi-tab-content::-webkit-scrollbar { width: 6px; }
+  .pi-tab-content::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+  .instr-group { margin-bottom: 14px; }
+  .instr-group > label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 700;
+    margin-bottom: 7px;
+    letter-spacing: .02em;
+  }
+  .opts { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    background: var(--panel-2);
+    border: 1px solid var(--border-2);
+    border-radius: 7px;
+    padding: 6px 10px;
+    font-size: 11px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all .15s;
+    user-select: none;
+    font-weight: 600;
+    font-family: inherit;
+    line-height: 1.2;
+    min-height: 30px;
+  }
+  .chip:hover { color: var(--text); border-color: var(--accent); }
+  .chip.active {
+    background: var(--role-grad);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 3px 10px var(--accent-glow);
+  }
+  .instr-group.multi > label::after {
+    content: ' (multi)';
+    color: var(--text-dim-2);
+    font-weight: 600;
+    font-size: 9.5px;
+    letter-spacing: .05em;
+    margin-left: 4px;
+  }
+
+  /* =========================================================
+     SUMMARY PANEL (middle)
+     ========================================================= */
+  .summary-panel {
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .summary-panel .sum-header {
+    padding: 14px 14px 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel-2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .summary-panel .sum-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: var(--gold);
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .summary-panel .sum-title::before {
+    content: '📋';
+    font-size: 13px;
+    -webkit-text-fill-color: initial;
+  }
+  .summary-panel .sum-total {
+    background: var(--gold);
+    color: #1a1206;
+    font-size: 10px;
+    font-weight: 900;
+    padding: 2px 7px;
+    border-radius: 8px;
+    letter-spacing: 0;
+  }
+  .summary-panel .sum-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-2) transparent;
+  }
+  .summary-panel .sum-body::-webkit-scrollbar { width: 6px; }
+  .summary-panel .sum-body::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+
+  .summary-section {
+    margin-bottom: 12px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 11px;
+  }
+  .summary-section:last-child { margin-bottom: 0; }
+  .summary-section .ss-title {
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--accent-2);
+    margin-bottom: 7px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .summary-section .ss-title .ss-count {
+    background: var(--accent);
+    color: white;
+    font-size: 9px;
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-weight: 900;
+    letter-spacing: 0;
+    margin-left: auto;
+  }
+  .summary-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .summary-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 11px;
+    line-height: 1.3;
+    color: var(--text);
+    padding: 2px 0;
+  }
+  .summary-item::before {
+    content: '•';
+    color: var(--accent);
+    font-weight: 900;
+    font-size: 13px;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .summary-item .si-group {
+    color: var(--text-dim);
+    font-weight: 600;
+    font-size: 9.5px;
+    display: block;
+    margin-bottom: 1px;
+  }
+  .summary-item .si-value {
+    font-weight: 700;
+    font-size: 11px;
+    word-break: break-word;
+  }
+  .summary-item .si-remove {
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    color: var(--text-dim-2);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 0 3px;
+    border-radius: 4px;
+    font-family: inherit;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: all .15s;
+  }
+  .summary-item .si-remove:hover { color: var(--red); background: rgba(239,68,68,.1); }
+  .summary-empty {
+    text-align: center;
+    padding: 30px 12px;
+    color: var(--text-dim-2);
+    font-size: 11.5px;
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  /* =========================================================
+     INSTRUCTIONS PANEL (right)
+     ========================================================= */
+  aside.panel {
+    background: var(--panel);
+    overflow-y: auto;
+    padding: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-2) transparent;
+  }
+  aside.panel::-webkit-scrollbar { width: 8px; }
+  aside.panel::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 4px; }
+  aside.panel::-webkit-scrollbar-track { background: transparent; }
+
+  .section-title {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: var(--text-dim-2);
+    font-weight: 900;
+    margin: 18px 0 9px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .section-title:first-child { margin-top: 0; }
+  .section-title::before {
+    content: '';
+    width: 3px; height: 13px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* =========================================================
+     MODAL — z-index iznad wizarda (600 > 500)
+     ========================================================= */
+  .modal-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.75);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 600;
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    animation: fadeIn .15s;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: var(--panel);
+    border: 1px solid var(--border-2);
+    border-radius: 18px;
+    box-shadow: var(--shadow-lg);
+    width: 460px;
+    max-width: 100%;
+    max-height: calc(100vh - 32px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: popIn .2s cubic-bezier(.2,.9,.3,1.2);
+  }
+  .modal .m-header {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal .m-header h3 { font-size: 15px; font-weight: 800; }
+  .modal .m-close {
+    background: transparent; border: none; color: var(--text-dim);
+    cursor: pointer; font-size: 18px; padding: 4px 9px; border-radius: 8px;
+    font-family: inherit;
+  }
+  .modal .m-close:hover { background: var(--panel-2); color: var(--text); }
+  .modal .m-body { padding: 18px; overflow-y: auto; flex: 1; }
+  .modal .m-actions {
+    padding: 12px 18px 16px;
+    display: flex; gap: 8px; justify-content: flex-end;
+    border-top: 1px solid var(--border);
+    background: var(--panel-2);
+  }
+  .saves-list { display: flex; flex-direction: column; gap: 8px; }
+  .save-item {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 13px;
+    transition: all .15s;
+  }
+  .save-item:hover { border-color: var(--accent); }
+  .save-item .si-info { flex: 1; min-width: 0; }
+  .save-item .si-name {
+    font-size: 13px; font-weight: 700;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .save-item .si-meta { font-size: 10.5px; color: var(--text-dim); margin-top: 3px; font-weight: 600; }
+  .save-item .si-actions { display: flex; gap: 5px; flex-shrink: 0; }
+  .save-item .si-actions button {
+    background: transparent; border: 1px solid var(--border-2);
+    color: var(--text-dim); padding: 7px 11px; border-radius: 8px;
+    font-size: 11px; cursor: pointer; font-family: inherit; font-weight: 700;
+    transition: all .15s;
+  }
+  .save-item .si-actions button:hover { border-color: var(--accent); color: var(--accent-2); }
+  .save-item .si-actions button.danger:hover { border-color: var(--red); color: var(--red); }
+  .empty-state {
+    text-align: center; padding: 36px 20px; color: var(--text-dim-2);
+    font-size: 12.5px; line-height: 1.6;
+  }
+  .field-input {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--border-2);
+    border-radius: 10px;
+    padding: 11px 13px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    margin-top: 8px;
+  }
+  .field-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+  /* =========================================================
+     TOAST
+     ========================================================= */
+  .toast {
+    position: fixed;
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    left: 50%; transform: translateX(-50%);
+    background: var(--panel);
+    border: 1px solid var(--border-2);
+    border-radius: 12px;
+    padding: 11px 18px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    z-index: 700;
+    animation: toastIn .22s cubic-bezier(.2,.9,.3,1.2);
+    max-width: calc(100vw - 32px);
+  }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translate(-50%, 14px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+  .toast.success { border-color: var(--green); }
+  .toast.error { border-color: var(--red); }
+
+  /* =========================================================
+     RESPONSIVE
+     ========================================================= */
+  @media (max-width: 1280px) {
+    .app { grid-template-columns: 1fr 240px 300px; }
+  }
+  @media (max-width: 1100px) {
+    .app {
+      grid-template-columns: 1fr 320px;
+      grid-template-rows: 60px 1fr 240px;
+    }
+    header { grid-column: 1/3; }
+    .pitch-wrap { grid-column: 1/2; grid-row: 2/3; }
+    aside.panel { grid-column: 2/3; grid-row: 2/3; }
+    .summary-panel {
+      grid-column: 1/3;
+      grid-row: 3/4;
+      border-left: none;
+      border-right: none;
+      border-top: 1px solid var(--border);
+    }
+    .summary-panel .sum-body {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+      align-items: start;
+    }
+  }
+  @media (max-width: 900px) {
+    .app {
+      grid-template-columns: 1fr;
+      grid-template-rows: 56px auto 1fr auto;
+    }
+    header { grid-column: 1; grid-row: 1; padding: 0 12px; gap: 8px; }
+    .pitch-wrap { grid-column: 1; grid-row: 2; padding: 12px; min-height: 45vh; }
+    .summary-panel { grid-column: 1; grid-row: 3; max-height: 30vh; }
+    aside.panel {
+      grid-column: 1;
+      grid-row: 4;
+      border-left: none;
+      border-top: 1px solid var(--border);
+      max-height: 40vh;
+      padding: 14px 14px calc(20px + env(safe-area-inset-bottom, 0px));
+    }
+    .logo { font-size: 14px; }
+    .logo::before { font-size: 15px; }
+    .header-controls { gap: 6px; }
+    select.native { padding: 8px 8px; font-size: 12px; min-width: 90px; max-width: none; }
+    .phase-toggle button { padding: 7px 10px; font-size: 11px; }
+    .btn { padding: 8px 10px; font-size: 11.5px; }
+
+    .pitch { max-height: 55vh; }
+    .player .pos-badge { width: 48px; height: 48px; font-size: 12px; }
+    .player .role-label { font-size: 10px; padding: 4px 8px; max-width: 110px; }
+
+    .role-menu {
+      position: fixed;
+      left: 12px; right: 12px;
+      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+      top: auto !important;
+      width: auto;
+      max-width: none;
+      max-height: 70vh;
+      border-radius: 20px;
+      animation: sheetUp .25s cubic-bezier(.2,.9,.3,1.2);
+    }
+    @keyframes sheetUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .role-menu-header { padding: 18px 16px 12px; }
+    .role-list { max-height: none; }
+    .role-option { padding: 13px 14px; font-size: 13.5px; min-height: 46px; }
+    .pi-tab-content { max-height: none; padding: 14px 16px 20px; }
+    .chip { padding: 8px 11px; font-size: 11.5px; min-height: 34px; }
+    .modal { width: 100%; }
+  }
+  @media (max-width: 640px) {
+    header { padding: 0 10px; gap: 6px; }
+    .logo { display: none; }
+    .header-controls { flex: 1; min-width: 0; gap: 5px; }
+    .header-actions { gap: 4px; }
+    select.native { padding: 7px 6px; font-size: 11.5px; min-width: 80px; }
+    .phase-toggle button { padding: 7px 7px; font-size: 10.5px; }
+    .phase-toggle button .pt-full { display: none; }
+    .phase-toggle button .pt-short { display: inline; }
+    .btn span.btn-label { display: none; }
+    .btn { padding: 8px 9px; gap: 0; }
+    .player .pos-badge { width: 44px; height: 44px; font-size: 11px; border-width: 2px; }
+    .player .role-label { font-size: 9.5px; padding: 3px 7px; max-width: 100px; }
+    .wizard-card { padding: 22px 18px; border-radius: 16px; }
+    .wizard-header .logo { font-size: 22px; }
+    .wizard-header .logo::before { font-size: 24px; }
+    .wizard-options { grid-template-columns: 1fr; max-height: 50vh; }
+    .btn-lg { padding: 11px 16px; font-size: 13px; }
+    .wiz-load-btn { padding: 8px 11px; font-size: 11.5px; }
+  }
+  @media (min-width: 641px) {
+    .phase-toggle button .pt-short { display: none; }
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- WIZARD -->
+<div class="wizard" id="wizard">
+  <div class="wizard-card">
+    <div class="wizard-header">
+      <div class="logo">FM26 Planner</div>
+      <p>Design your tactic in 3 easy steps</p>
+      <button type="button" class="wiz-load-btn" id="wizLoadBtn">📂 Load</button>
+    </div>
+
+    <div class="wizard-step active" id="step1">
+      <h2><span class="num">1</span> Choose your playing style</h2>
+      <div class="wizard-options" id="styleOptions"></div>
+    </div>
+
+    <div class="wizard-step" id="step2">
+      <h2><span class="num">2</span> Choose your formation</h2>
+      <div class="wizard-options" id="formationOptions"></div>
+    </div>
+
+    <div class="wizard-step" id="step3">
+      <h2><span class="num">3</span> Name your tactic</h2>
+      <div class="wiz-name-field">
+        <label for="wizTacticName">Tactic name</label>
+        <input type="text" id="wizTacticName" placeholder="e.g. My High-Press 4-3-3" maxlength="60" autocomplete="off">
+        <div class="wiz-name-hint">Optional — you can also name it later when saving.</div>
+      </div>
+      <div style="margin-top: 22px;">
+        <div style="font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px;">Summary</div>
+        <div class="wizard-options" style="grid-template-columns: 1fr; max-height: none; margin-bottom: 0;">
+          <div class="wiz-option" style="cursor:default;border-color:var(--accent);">
+            <div class="wo-title" id="confirmStyle">—</div>
+            <div class="wo-sub" id="confirmFormation">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wizard-footer">
+      <button class="btn-lg" id="wizBack" disabled>← Back</button>
+      <div class="step-dots">
+        <span class="dot active" data-step="1"></span>
+        <span class="dot" data-step="2"></span>
+        <span class="dot" data-step="3"></span>
+      </div>
+      <button class="btn-lg primary" id="wizNext">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="app hidden" id="app">
+
+  <header>
+    <span class="logo">FM26 Planner</span>
+    <div class="header-controls">
+      <select class="native" id="styleSelect" title="Playing style"></select>
+      <select class="native" id="tacticSelect" title="Formation"></select>
+      <div class="phase-toggle">
+        <button id="phaseIP" class="active">
+          <span class="pt-full">In Possession</span><span class="pt-short">IP</span>
+        </button>
+        <button id="phaseOOP">
+          <span class="pt-full">Out of Possession</span><span class="pt-short">OOP</span>
+        </button>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn primary" id="btnNew" title="New tactic">✨<span class="btn-label"> New</span></button>
+      <button class="btn" id="btnSave" title="Save">💾<span class="btn-label"> Save</span></button>
+      <button class="btn" id="btnLoad" title="Load">📂<span class="btn-label"> Load</span></button>
+      <button class="btn" id="btnExport" title="Export PNG">🖼<span class="btn-label"> Export</span></button>
+      <button class="btn icon" id="btnTheme" title="Toggle theme">🌙</button>
+    </div>
+  </header>
+
+  <main class="pitch-wrap">
+    <div class="pitch" id="pitch">
+      <svg viewBox="0 0 680 1050" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <pattern id="stripes" width="680" height="75" patternUnits="userSpaceOnUse">
+            <rect width="680" height="75" fill="var(--grass-1)"/>
+            <rect y="37.5" width="680" height="37.5" fill="var(--grass-2)"/>
+          </pattern>
+          <radialGradient id="vignette" cx="50%" cy="50%" r="75%">
+            <stop offset="55%" stop-color="rgba(0,0,0,0)"/>
+            <stop offset="100%" stop-color="rgba(0,0,0,.28)"/>
+          </radialGradient>
+        </defs>
+        <rect x="0" y="0" width="680" height="1050" fill="url(#stripes)"/>
+        <rect x="0" y="0" width="680" height="1050" fill="url(#vignette)"/>
+        <rect x="20" y="20" width="640" height="1010" fill="none" stroke="var(--line)" stroke-width="2.5"/>
+        <line x1="20" y1="525" x2="660" y2="525" stroke="var(--line)" stroke-width="2"/>
+        <circle cx="340" cy="525" r="80" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <circle cx="340" cy="525" r="3.5" fill="var(--line)"/>
+        <rect x="130" y="20" width="420" height="160" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <rect x="225" y="20" width="230" height="55" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <circle cx="340" cy="125" r="3" fill="var(--line)"/>
+        <path d="M 253 180 A 88 88 0 0 0 427 180" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <rect x="295" y="8" width="90" height="12" fill="none" stroke="var(--line)" stroke-width="2.5"/>
+        <rect x="130" y="870" width="420" height="160" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <rect x="225" y="975" width="230" height="55" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <circle cx="340" cy="925" r="3" fill="var(--line)"/>
+        <path d="M 253 870 A 88 88 0 0 1 427 870" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <rect x="295" y="1030" width="90" height="12" fill="none" stroke="var(--line)" stroke-width="2.5"/>
+        <path d="M 20 40 A 20 20 0 0 1 40 20" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <path d="M 640 20 A 20 20 0 0 1 660 40" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <path d="M 20 1010 A 20 20 0 0 0 40 1030" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <path d="M 640 1030 A 20 20 0 0 0 660 1010" fill="none" stroke="var(--line)" stroke-width="2"/>
+      </svg>
+      <div class="players-layer" id="playersLayer"></div>
+    </div>
+  </main>
+
+  <div class="summary-panel">
+    <div class="sum-header">
+      <div class="sum-title">Selected Instructions</div>
+      <div class="sum-total" id="sumTotal">0</div>
+    </div>
+    <div class="sum-body" id="summaryContent"></div>
+  </div>
+
+  <aside class="panel" id="teamPanel">
+    <div class="section-title">Mentality</div>
+    <div id="teamMent"></div>
+    <div class="section-title">In Possession</div>
+    <div id="teamIP"></div>
+    <div class="section-title">In Transition</div>
+    <div id="teamIT"></div>
+    <div class="section-title">Out of Possession</div>
+    <div id="teamOOP"></div>
+  </aside>
+
+</div>
+
+<script>
+/* =========================================================
+   DATA (same as v10)
+   ========================================================= */
+const TACTICS = {
+  "Catenaccio": [
+    {name:"5-2-1-2 DM AM / 4-4-2 Diamond Narrow", ip:"5-2-1-2 DM AM", oop:"4-4-2 Diamond Narrow"},
+    {name:"5-2-1-2 DM AM / 5-2-1-2 DM AM", ip:"5-2-1-2 DM AM", oop:"5-2-1-2 DM AM"},
+    {name:"5-2-1-2 DM AM / 5-3-2 DM WB", ip:"5-2-1-2 DM AM", oop:"5-3-2 DM WB"},
+    {name:"5-2-2-1 DM AM / 4-3-2-1 DM AM Narrow", ip:"5-2-2-1 DM AM", oop:"4-3-2-1 DM AM Narrow"},
+    {name:"5-2-2-1 DM AM / 5-2-2-1 DM AM", ip:"5-2-2-1 DM AM", oop:"5-2-2-1 DM AM"},
+    {name:"5-2-2-1 DM AM / 5-2-3 DM Wide", ip:"5-2-2-1 DM AM", oop:"5-2-3 DM Wide"},
+    {name:"5-2-3 DM Wide / 4-3-3 DM Wide", ip:"5-2-3 DM Wide", oop:"4-3-3 DM Wide"},
+    {name:"5-2-3 DM Wide / 5-2-2-1 DM AM", ip:"5-2-3 DM Wide", oop:"5-2-2-1 DM AM"},
+    {name:"5-2-3 DM Wide / 5-2-3 DM Wide", ip:"5-2-3 DM Wide", oop:"5-2-3 DM Wide"}
+  ],
+  "Control Possession": [
+    {name:"4-2-3-1 DM AM Wide / 4-3-3 DM Wide", ip:"4-2-3-1 DM AM Wide", oop:"4-3-3 DM Wide"},
+    {name:"4-2-3-1 DM AM Wide / 4-4-1-1 2DM", ip:"4-2-3-1 DM AM Wide", oop:"4-4-1-1 2DM"},
+    {name:"4-2-3-1 DM AM Wide / 4-4-2 2DM", ip:"4-2-3-1 DM AM Wide", oop:"4-4-2 2DM"},
+    {name:"4-3-3 DM Wide / 4-1-4-1 DM", ip:"4-3-3 DM Wide", oop:"4-1-4-1 DM"},
+    {name:"4-3-3 DM Wide / 4-3-3 DM Wide", ip:"4-3-3 DM Wide", oop:"4-3-3 DM Wide"},
+    {name:"4-3-3 DM Wide / 4-4-2 2DM", ip:"4-3-3 DM Wide", oop:"4-4-2 2DM"},
+    {name:"5-2-3 DM Wide / 4-3-3 DM Wide", ip:"5-2-3 DM Wide", oop:"4-3-3 DM Wide"},
+    {name:"5-2-3 DM Wide / 5-2-2-1 DM AM", ip:"5-2-3 DM Wide", oop:"5-2-2-1 DM AM"},
+    {name:"5-2-3 DM Wide / 5-2-3 DM Wide", ip:"5-2-3 DM Wide", oop:"5-2-3 DM Wide"}
+  ],
+  "Gegenpress": [
+    {name:"4-2-3-1 DM AM Wide / 4-1-4-1 DM", ip:"4-2-3-1 DM AM Wide", oop:"4-1-4-1 DM"},
+    {name:"4-2-3-1 DM AM Wide / 4-4-2 2DM", ip:"4-2-3-1 DM AM Wide", oop:"4-4-2 2DM"},
+    {name:"4-3-3 DM Wide / 4-1-4-1 DM", ip:"4-3-3 DM Wide", oop:"4-1-4-1 DM"},
+    {name:"4-3-3 DM Wide / 4-3-3 DM Wide", ip:"4-3-3 DM Wide", oop:"4-3-3 DM Wide"},
+    {name:"4-4-2 2DM / 4-4-2 2DM", ip:"4-4-2 2DM", oop:"4-4-2 2DM"},
+    {name:"4-1-3-2 DM / 4-4-2 Diamond Narrow", ip:"4-1-3-2 DM", oop:"4-4-2 Diamond Narrow"},
+    {name:"3-4-2-1 DM / 5-2-3 DM Wide", ip:"3-4-2-1 DM", oop:"5-2-3 DM Wide"},
+    {name:"3-5-2 DM AM / 5-3-2 DM WB", ip:"3-5-2 DM AM", oop:"5-3-2 DM WB"},
+    {name:"4-2-4 DM Wide / 4-5-1 DM AM", ip:"4-2-4 DM Wide", oop:"4-5-1 DM AM"}
+  ],
+  "Tiki-Taka": [
+    {name:"4-2-3-1 DM AM Wide / 4-2-3-1 DM AM Wide", ip:"4-2-3-1 DM AM Wide", oop:"4-2-3-1 DM AM Wide"},
+    {name:"4-2-3-1 DM AM Wide / 4-3-3 DM Wide", ip:"4-2-3-1 DM AM Wide", oop:"4-3-3 DM Wide"},
+    {name:"4-3-3 DM Wide / 4-1-4-1 DM", ip:"4-3-3 DM Wide", oop:"4-1-4-1 DM"},
+    {name:"4-3-3 DM Wide / 4-3-3 DM Wide", ip:"4-3-3 DM Wide", oop:"4-3-3 DM Wide"},
+    {name:"4-1-4-1 DM / 4-1-4-1 DM", ip:"4-1-4-1 DM", oop:"4-1-4-1 DM"},
+    {name:"4-4-2 Diamond Narrow / 4-1-2-1-2 DM AM", ip:"4-4-2 Diamond Narrow", oop:"4-1-2-1-2 DM AM"},
+    {name:"5-2-1-2 DM AM / 5-3-2 DM WB", ip:"5-2-1-2 DM AM", oop:"5-3-2 DM WB"},
+    {name:"5-2-3 DM Wide / 5-2-3 DM Wide", ip:"5-2-3 DM Wide", oop:"5-2-3 DM Wide"},
+    {name:"3-4-2-1 DM / 3-4-2-1 DM", ip:"3-4-2-1 DM", oop:"3-4-2-1 DM"}
+  ],
+  "Vertical Tiki-Taka": [
+    {name:"4-2-3-1 DM AM Wide / 4-1-4-1 DM", ip:"4-2-3-1 DM AM Wide", oop:"4-1-4-1 DM"},
+    {name:"4-2-3-1 DM AM Wide / 4-4-1-1 2DM", ip:"4-2-3-1 DM AM Wide", oop:"4-4-1-1 2DM"},
+    {name:"4-3-3 DM Wide / 4-1-4-1 DM", ip:"4-3-3 DM Wide", oop:"4-1-4-1 DM"},
+    {name:"4-3-3 DM Wide / 4-3-3 DM Wide", ip:"4-3-3 DM Wide", oop:"4-3-3 DM Wide"},
+    {name:"4-4-2 Diamond Narrow / 4-4-2 Diamond Narrow", ip:"4-4-2 Diamond Narrow", oop:"4-4-2 Diamond Narrow"},
+    {name:"4-1-3-2 DM / 4-1-4-1 DM", ip:"4-1-3-2 DM", oop:"4-1-4-1 DM"},
+    {name:"5-2-1-2 DM AM / 5-2-1-2 DM AM", ip:"5-2-1-2 DM AM", oop:"5-2-1-2 DM AM"},
+    {name:"5-2-3 DM Wide / 5-3-2 DM WB", ip:"5-2-3 DM Wide", oop:"5-3-2 DM WB"},
+    {name:"3-4-2-1 DM / 5-4-1 Linear", ip:"3-4-2-1 DM", oop:"5-4-1 Linear"}
+  ],
+  "Fluid Counter-Attack": [
+    {name:"4-2-3-1 DM AM Wide / 4-4-1-1 2DM", ip:"4-2-3-1 DM AM Wide", oop:"4-4-1-1 2DM"},
+    {name:"4-3-3 DM Wide / 4-1-4-1 DM", ip:"4-3-3 DM Wide", oop:"4-1-4-1 DM"},
+    {name:"4-4-2 2DM / 4-4-2 2DM", ip:"4-4-2 2DM", oop:"4-4-2 2DM"},
+    {name:"4-1-4-1 DM / 4-5-1 DM AM", ip:"4-1-4-1 DM", oop:"4-5-1 DM AM"},
+    {name:"5-2-1-2 DM AM / 5-3-2 DM WB", ip:"5-2-1-2 DM AM", oop:"5-3-2 DM WB"},
+    {name:"5-2-3 DM Wide / 5-4-1 DM Wide", ip:"5-2-3 DM Wide", oop:"5-4-1 DM Wide"},
+    {name:"5-3-2 DM WB / 5-3-2 DM WB", ip:"5-3-2 DM WB", oop:"5-3-2 DM WB"},
+    {name:"3-4-2-1 DM / 5-2-3 DM Wide", ip:"3-4-2-1 DM", oop:"5-2-3 DM Wide"},
+    {name:"3-5-2 DM AM / 5-3-2 DM WB", ip:"3-5-2 DM AM", oop:"5-3-2 DM WB"}
+  ],
+  "Direct Counter-Attack": [
+    {name:"4-2-3-1 DM AM Wide / 4-4-2 2DM", ip:"4-2-3-1 DM AM Wide", oop:"4-4-2 2DM"},
+    {name:"4-3-3 DM Wide / 4-5-1 DM AM", ip:"4-3-3 DM Wide", oop:"4-5-1 DM AM"},
+    {name:"4-4-2 2DM / 4-4-2 2DM", ip:"4-4-2 2DM", oop:"4-4-2 2DM"},
+    {name:"4-1-4-1 DM / 4-1-4-1 DM", ip:"4-1-4-1 DM", oop:"4-1-4-1 DM"},
+    {name:"4-4-1-1 2DM / 4-4-1-1 2DM", ip:"4-4-1-1 2DM", oop:"4-4-1-1 2DM"},
+    {name:"5-3-2 DM WB / 5-3-2 DM WB", ip:"5-3-2 DM WB", oop:"5-3-2 DM WB"},
+    {name:"5-2-3 DM Wide / 5-4-1 DM Wide", ip:"5-2-3 DM Wide", oop:"5-4-1 DM Wide"},
+    {name:"3-4-1-2 DM / 5-3-2 DM WB", ip:"3-4-1-2 DM", oop:"5-3-2 DM WB"},
+    {name:"3-5-2 DM AM / 5-4-1 Linear", ip:"3-5-2 DM AM", oop:"5-4-1 Linear"}
+  ],
+  "Wing Play": [
+    {name:"4-2-3-1 DM AM Wide / 4-2-3-1 DM AM Wide", ip:"4-2-3-1 DM AM Wide", oop:"4-2-3-1 DM AM Wide"},
+    {name:"4-3-3 DM Wide / 4-1-4-1 DM", ip:"4-3-3 DM Wide", oop:"4-1-4-1 DM"},
+    {name:"4-4-2 2DM / 4-4-2 2DM", ip:"4-4-2 2DM", oop:"4-4-2 2DM"},
+    {name:"4-4-1-1 2DM / 4-4-1-1 2DM", ip:"4-4-1-1 2DM", oop:"4-4-1-1 2DM"},
+    {name:"4-1-4-1 DM / 4-1-4-1 DM", ip:"4-1-4-1 DM", oop:"4-1-4-1 DM"},
+    {name:"5-2-1-2 DM AM / 5-3-2 DM WB", ip:"5-2-1-2 DM AM", oop:"5-3-2 DM WB"},
+    {name:"5-3-2 DM WB / 5-3-2 DM WB", ip:"5-3-2 DM WB", oop:"5-3-2 DM WB"},
+    {name:"3-4-3 DM Wide / 5-3-2 DM WB", ip:"3-4-3 DM Wide", oop:"5-3-2 DM WB"},
+    {name:"3-5-2 DM AM / 5-4-1 DM Wide", ip:"3-5-2 DM AM", oop:"5-4-1 DM Wide"}
+  ],
+  "Route One": [
+    {name:"4-4-2 2DM / 4-4-2 2DM", ip:"4-4-2 2DM", oop:"4-4-2 2DM"},
+    {name:"4-4-1-1 2DM / 4-4-1-1 2DM", ip:"4-4-1-1 2DM", oop:"4-4-1-1 2DM"},
+    {name:"4-1-4-1 DM / 4-1-4-1 DM", ip:"4-1-4-1 DM", oop:"4-1-4-1 DM"},
+    {name:"4-3-1-2 DM / 4-1-3-2 DM", ip:"4-3-1-2 DM", oop:"4-1-3-2 DM"},
+    {name:"5-3-2 DM WB / 5-3-2 DM WB", ip:"5-3-2 DM WB", oop:"5-3-2 DM WB"},
+    {name:"5-2-1-2 DM AM / 5-2-1-2 DM AM", ip:"5-2-1-2 DM AM", oop:"5-2-1-2 DM AM"},
+    {name:"4-1-3-2 DM / 4-4-2 2DM", ip:"4-1-3-2 DM", oop:"4-4-2 2DM"},
+    {name:"3-5-2 DM AM / 5-3-2 DM WB", ip:"3-5-2 DM AM", oop:"5-3-2 DM WB"},
+    {name:"5-4-1 Linear / 5-4-1 Linear", ip:"5-4-1 Linear", oop:"5-4-1 Linear"}
+  ],
+  "Park the Bus": [
+    {name:"4-1-4-1 DM / 4-5-1 DM AM", ip:"4-1-4-1 DM", oop:"4-5-1 DM AM"},
+    {name:"4-4-2 2DM / 4-4-2 2DM", ip:"4-4-2 2DM", oop:"4-4-2 2DM"},
+    {name:"4-5-1 DM AM / 4-5-1 DM AM", ip:"4-5-1 DM AM", oop:"4-5-1 DM AM"},
+    {name:"5-3-2 DM WB / 5-3-2 DM WB", ip:"5-3-2 DM WB", oop:"5-3-2 DM WB"},
+    {name:"5-4-1 DM Wide / 5-4-1 DM Wide", ip:"5-4-1 DM Wide", oop:"5-4-1 DM Wide"},
+    {name:"5-4-1 Linear / 5-4-1 Linear", ip:"5-4-1 Linear", oop:"5-4-1 Linear"},
+    {name:"5-2-1-2 DM AM / 5-4-1 DM Wide", ip:"5-2-1-2 DM AM", oop:"5-4-1 DM Wide"},
+    {name:"3-5-2 DM AM / 5-4-1 Linear", ip:"3-5-2 DM AM", oop:"5-4-1 Linear"},
+    {name:"4-4-1-1 2DM / 4-5-1 DM AM", ip:"4-4-1-1 2DM", oop:"4-5-1 DM AM"}
+  ]
+};
+
+const ROLES = {
+  GK: { IP:["Goalkeeper","Ball-Playing Goalkeeper","No-Nonsense Goalkeeper"],
+        OOP:["Line-Holding Keeper","Sweeper Keeper"] },
+  CB: { IP:["Centre-Back","Ball-Playing Centre-Back","No-Nonsense Centre-Back",
+            "Wide Centre-Back","Advanced Centre-Back","Overlapping Centre-Back"],
+        OOP:["Stopping Centre-Back","Covering Centre-Back",
+             "Covering Wide Centre-Back","Stopping Wide Centre-Back"] },
+  FB: { IP:["Full-Back","Inverted Full-Back","Inside Full-Back","Holding Full-Back",
+            "Pressing Full-Back","Playmaking Wing-Back"],
+        OOP:["Full-Back","Pressing Full-Back","Holding Full-Back"] },
+  WB: { IP:["Wing-Back","Inverted Wing-Back","Inside Wing-Back","Holding Wing-Back",
+            "Pressing Wing-Back","Advanced Wing-Back"],
+        OOP:["Wing-Back","Pressing Wing-Back","Holding Wing-Back"] },
+  DM: { IP:["Defensive Midfielder","Deep-Lying Playmaker","Half-Back",
+            "Pressing Defensive Midfielder","Wide Covering Defensive Midfielder",
+            "Midfield Playmaker"],
+        OOP:["Dropping Defensive Midfielder","Screening Defensive Midfielder"] },
+  CM: { IP:["Central Midfielder","Box-to-Box Midfielder","Wide Central Midfielder",
+            "Channel Midfielder","Box-to-Box Playmaker","Pressing Central Midfielder"],
+        OOP:["Screening Central Midfielder","Wide Covering Central Midfielder"] },
+  WM: { IP:["Wide Midfielder","Wide Playmaker","Tracking Wide Midfielder"],
+        OOP:["Wide Outlet Wide Midfielder"] },
+  AM: { IP:["Attacking Midfielder","Advanced Playmaker","Free Role"],
+        OOP:["Tracking Attacking Midfielder","Central Outlet Attacking Midfielder",
+             "Splitting Outlet Attacking Midfielder"] },
+  W:  { IP:["Winger","Inside Forward","Inside Winger","Half-Space Winger",
+            "Wide Forward","Inverting Outlet Winger"],
+        OOP:["Tracking Winger","Wide Outlet Winger","Inside Outlet Winger"] },
+  CF: { IP:["Centre Forward","Deep-Lying Forward","False Nine",
+            "Half-Space Forward","Channel Forward"],
+        OOP:["Central Outlet Centre Forward","Splitting Outlet Centre Forward",
+             "Tracking Centre Forward"] }
+};
+
+const TEAM_INSTRUCTIONS = {
+  "Mentality": {
+    groups: {
+      "Mentality": { multi: false, opts: ["Very Defensive","Defensive","Cautious","Balanced","Positive","Attacking","Very Attacking"] }
+    }
+  },
+  "In Possession": {
+    groups: {
+      "Attacking Width": { multi: false, opts: ["Much Narrower","Narrow","Standard","Wide","Extremely Wide"] },
+      "Passing Directness": { multi: false, opts: ["Much Shorter","Shorter","Standard","Slightly More Direct","Much More Direct"] },
+      "Tempo": { multi: false, opts: ["Much Lower","Lower","Standard","Higher","Extremely High"] },
+      "Approach Play": { multi: true, opts: ["Pass Into Space","Overlap Left","Overlap Right","Underlap Left","Underlap Right",
+                                             "Focus Play Through The Middle","Focus Play Down The Left","Focus Play Down The Right",
+                                             "Play Out of Defence"] },
+      "Final Third": { multi: true, opts: ["Work Ball Into Box","Hit Early Crosses","Shoot On Sight"] },
+      "Crossing": { multi: false, opts: ["Mixed Crosses","Floated Crosses","Whipped Crosses","Low Crosses"] },
+      "Dribbling": { multi: false, opts: ["Dribble Less","Run At Defence"] },
+      "Creative Freedom": { multi: false, opts: ["Be More Expressive","Be More Disciplined"] },
+      "Time Wasting": { multi: false, opts: ["Never","Sometimes","Frequently"] },
+      "Play For Set Pieces": { multi: false, opts: ["Keep Ball in Play","Standard"] }
+    }
+  },
+  "In Transition": {
+    groups: {
+      "When Possession Lost": { multi: false, opts: ["Counter-Press","Regroup"] },
+      "When Possession Won": { multi: false, opts: ["Counter","Hold Shape"] },
+      "GK In Possession": { multi: false, opts: ["Distribute Quickly","Slow Pace Down"] },
+      "GK Distribution Type": { multi: true, opts: ["Roll It Out","Throw It Long","Take Short Kicks","Take Long Kicks"] }
+    }
+  },
+  "Out of Possession": {
+    groups: {
+      "Line of Engagement": { multi: false, opts: ["Low Block","Mid Block","High Press"] },
+      "Defensive Line": { multi: false, opts: ["Much Lower","Lower","Standard","Higher","Much Higher"] },
+      "Trigger Press": { multi: false, opts: ["Much Less Often","Less Often","Standard","More Often","Much More Often"] },
+      "Tackling": { multi: false, opts: ["Stay On Feet","Get Stuck In"] },
+      "Defensive Line Behaviour": { multi: false, opts: ["Step Up More","Drop Off More","Balanced","Offside Trap"] },
+      "Pressing Trap": { multi: false, opts: ["Trap Inside","Trap Outside","Balanced","Active"] },
+      "Prevent Short GK Distribution": { multi: false, opts: ["Yes","No"] }
+    }
+  }
+};
+
+const PLAYER_INSTRUCTIONS = {
+  "When Opposition Has the Ball": ["Trigger Press","Tackle Harder","Ease Off Tackles",
+                                   "Mark Specific Player","Mark Specific Position","Mark Tighter"],
+  "When Player Has the Ball": ["Passing Directness","Cross From","Crossing Frequency","Dribbling",
+                               "Shooting","Passing Risks","Aim Crosses At"],
+  "Off the Ball": ["Get Further Forward","Stay Wider","Sit Narrower","Move Into Channels",
+                   "Hold Position","Roam From Position","Hold Up Ball"]
+};
+
+const FORMATION_LAYOUTS = {
+  "4-2-3-1 DM AM Wide": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LB", label:"LB", x:12, y:74}, {id:"CB1", label:"CB", x:36, y:78},
+    {id:"CB2", label:"CB", x:64, y:78}, {id:"RB", label:"RB", x:88, y:74},
+    {id:"DM1", label:"DM", x:36, y:58}, {id:"DM2", label:"DM", x:64, y:58},
+    {id:"LW", label:"LW", x:14, y:36}, {id:"AM", label:"AM", x:50, y:38}, {id:"RW", label:"RW", x:86, y:36},
+    {id:"ST", label:"ST", x:50, y:16}
+  ],
+  "4-3-3 DM Wide": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LB", label:"LB", x:12, y:74}, {id:"CB1", label:"CB", x:36, y:78},
+    {id:"CB2", label:"CB", x:64, y:78}, {id:"RB", label:"RB", x:88, y:74},
+    {id:"DM", label:"DM", x:50, y:60},
+    {id:"CM1", label:"CM", x:30, y:48}, {id:"CM2", label:"CM", x:70, y:48},
+    {id:"LW", label:"LW", x:14, y:26}, {id:"ST", label:"ST", x:50, y:16}, {id:"RW", label:"RW", x:86, y:26}
+  ],
+  "4-4-2 2DM": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LB", label:"LB", x:12, y:74}, {id:"CB1", label:"CB", x:36, y:78},
+    {id:"CB2", label:"CB", x:64, y:78}, {id:"RB", label:"RB", x:88, y:74},
+    {id:"LM", label:"LM", x:12, y:50}, {id:"DM1", label:"DM", x:36, y:56},
+    {id:"DM2", label:"DM", x:64, y:56}, {id:"RM", label:"RM", x:88, y:50},
+    {id:"ST1", label:"ST", x:38, y:20}, {id:"ST2", label:"ST", x:62, y:20}
+  ],
+  "4-1-4-1 DM": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LB", label:"LB", x:12, y:74}, {id:"CB1", label:"CB", x:36, y:78},
+    {id:"CB2", label:"CB", x:64, y:78}, {id:"RB", label:"RB", x:88, y:74},
+    {id:"DM", label:"DM", x:50, y:62},
+    {id:"LM", label:"LM", x:12, y:44}, {id:"CM1", label:"CM", x:36, y:46},
+    {id:"CM2", label:"CM", x:64, y:46}, {id:"RM", label:"RM", x:88, y:44},
+    {id:"ST", label:"ST", x:50, y:18}
+  ],
+  "4-4-1-1 2DM": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LB", label:"LB", x:12, y:74}, {id:"CB1", label:"CB", x:36, y:78},
+    {id:"CB2", label:"CB", x:64, y:78}, {id:"RB", label:"RB", x:88, y:74},
+    {id:"LM", label:"LM", x:12, y:52}, {id:"DM1", label:"DM", x:36, y:58},
+    {id:"DM2", label:"DM", x:64, y:58}, {id:"RM", label:"RM", x:88, y:52},
+    {id:"AM", label:"AM", x:50, y:34}, {id:"ST", label:"ST", x:50, y:16}
+  ],
+  "4-4-2 Diamond Narrow": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LB", label:"LB", x:12, y:74}, {id:"CB1", label:"CB", x:36, y:78},
+    {id:"CB2", label:"CB", x:64, y:78}, {id:"RB", label:"RB", x:88, y:74},
+    {id:"DM", label:"DM", x:50, y:62},
+    {id:"CM1", label:"CM", x:26, y:48}, {id:"CM2", label:"CM", x:74, y:48},
+    {id:"AM", label:"AM", x:50, y:36},
+    {id:"ST1", label:"ST", x:38, y:18}, {id:"ST2", label:"ST", x:62, y:18}
+  ],
+  "4-1-2-1-2 DM AM": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LB", label:"LB", x:12, y:74}, {id:"CB1", label:"CB", x:36, y:78},
+    {id:"CB2", label:"CB", x:64, y:78}, {id:"RB", label:"RB", x:88, y:74},
+    {id:"DM", label:"DM", x:50, y:62},
+    {id:"CM1", label:"CM", x:26, y:48}, {id:"CM2", label:"CM", x:74, y:48},
+    {id:"AM", label:"AM", x:50, y:36},
+    {id:"ST1", label:"ST", x:38, y:18}, {id:"ST2", label:"ST", x:62, y:18}
+  ],
+  "4-3-2-1 DM AM Narrow": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LB", label:"LB", x:12, y:74}, {id:"CB1", label:"CB", x:36, y:78},
+    {id:"CB2", label:"CB", x:64, y:78}, {id:"RB", label:"RB", x:88, y:74},
+    {id:"DM1", label:"DM", x:30, y:60}, {id:"DM2", label:"DM", x:70, y:60},
+    {id:"CM", label:"CM", x:50, y:48},
+    {id:"AM1", label:"AM", x:34, y:36}, {id:"AM2", label:"AM", x:66, y:36},
+    {id:"ST", label:"ST", x:50, y:16}
+  ],
+  "4-2-4 DM Wide": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LB", label:"LB", x:12, y:74}, {id:"CB1", label:"CB", x:36, y:78},
+    {id:"CB2", label:"CB", x:64, y:78}, {id:"RB", label:"RB", x:88, y:74},
+    {id:"DM1", label:"DM", x:36, y:58}, {id:"DM2", label:"DM", x:64, y:58},
+    {id:"LW", label:"LW", x:14, y:28}, {id:"RW", label:"RW", x:86, y:28},
+    {id:"ST1", label:"ST", x:38, y:16}, {id:"ST2", label:"ST", x:62, y:16}
+  ],
+  "4-5-1 DM AM": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LB", label:"LB", x:12, y:74}, {id:"CB1", label:"CB", x:36, y:78},
+    {id:"CB2", label:"CB", x:64, y:78}, {id:"RB", label:"RB", x:88, y:74},
+    {id:"DM", label:"DM", x:50, y:64},
+    {id:"LM", label:"LM", x:12, y:50}, {id:"CM1", label:"CM", x:36, y:50},
+    {id:"CM2", label:"CM", x:64, y:50}, {id:"RM", label:"RM", x:88, y:50},
+    {id:"ST", label:"ST", x:50, y:18}
+  ],
+  "4-3-1-2 DM": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LB", label:"LB", x:12, y:74}, {id:"CB1", label:"CB", x:36, y:78},
+    {id:"CB2", label:"CB", x:64, y:78}, {id:"RB", label:"RB", x:88, y:74},
+    {id:"CM1", label:"CM", x:26, y:56}, {id:"CM2", label:"CM", x:50, y:60}, {id:"CM3", label:"CM", x:74, y:56},
+    {id:"AM", label:"AM", x:50, y:40},
+    {id:"ST1", label:"ST", x:38, y:18}, {id:"ST2", label:"ST", x:62, y:18}
+  ],
+  "4-1-3-2 DM": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LB", label:"LB", x:12, y:74}, {id:"CB1", label:"CB", x:36, y:78},
+    {id:"CB2", label:"CB", x:64, y:78}, {id:"RB", label:"RB", x:88, y:74},
+    {id:"DM", label:"DM", x:50, y:62},
+    {id:"CM1", label:"CM", x:26, y:48}, {id:"CM2", label:"CM", x:50, y:48}, {id:"CM3", label:"CM", x:74, y:48},
+    {id:"ST1", label:"ST", x:38, y:18}, {id:"ST2", label:"ST", x:62, y:18}
+  ],
+  "5-2-1-2 DM AM": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LWB", label:"LWB", x:8, y:70}, {id:"CB1", label:"CB", x:28, y:80},
+    {id:"CB2", label:"CB", x:50, y:82}, {id:"CB3", label:"CB", x:72, y:80},
+    {id:"RWB", label:"RWB", x:92, y:70},
+    {id:"DM1", label:"DM", x:36, y:58}, {id:"DM2", label:"DM", x:64, y:58},
+    {id:"AM", label:"AM", x:50, y:40},
+    {id:"ST1", label:"ST", x:38, y:18}, {id:"ST2", label:"ST", x:62, y:18}
+  ],
+  "5-2-2-1 DM AM": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LWB", label:"LWB", x:8, y:70}, {id:"CB1", label:"CB", x:28, y:80},
+    {id:"CB2", label:"CB", x:50, y:82}, {id:"CB3", label:"CB", x:72, y:80},
+    {id:"RWB", label:"RWB", x:92, y:70},
+    {id:"DM1", label:"DM", x:36, y:58}, {id:"DM2", label:"DM", x:64, y:58},
+    {id:"AM1", label:"AM", x:34, y:36}, {id:"AM2", label:"AM", x:66, y:36},
+    {id:"ST", label:"ST", x:50, y:16}
+  ],
+  "5-2-3 DM Wide": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LWB", label:"LWB", x:8, y:70}, {id:"CB1", label:"CB", x:28, y:80},
+    {id:"CB2", label:"CB", x:50, y:82}, {id:"CB3", label:"CB", x:72, y:80},
+    {id:"RWB", label:"RWB", x:92, y:70},
+    {id:"DM1", label:"DM", x:36, y:58}, {id:"DM2", label:"DM", x:64, y:58},
+    {id:"LW", label:"LW", x:14, y:28}, {id:"ST", label:"ST", x:50, y:16}, {id:"RW", label:"RW", x:86, y:28}
+  ],
+  "5-3-2 DM WB": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LWB", label:"LWB", x:8, y:70}, {id:"CB1", label:"CB", x:28, y:80},
+    {id:"CB2", label:"CB", x:50, y:82}, {id:"CB3", label:"CB", x:72, y:80},
+    {id:"RWB", label:"RWB", x:92, y:70},
+    {id:"DM", label:"DM", x:50, y:62},
+    {id:"CM1", label:"CM", x:26, y:48}, {id:"CM2", label:"CM", x:74, y:48},
+    {id:"ST1", label:"ST", x:38, y:18}, {id:"ST2", label:"ST", x:62, y:18}
+  ],
+  "5-4-1 DM Wide": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LWB", label:"LWB", x:8, y:70}, {id:"CB1", label:"CB", x:28, y:80},
+    {id:"CB2", label:"CB", x:50, y:82}, {id:"CB3", label:"CB", x:72, y:80},
+    {id:"RWB", label:"RWB", x:92, y:70},
+    {id:"LM", label:"LM", x:14, y:52}, {id:"DM1", label:"DM", x:38, y:58},
+    {id:"DM2", label:"DM", x:62, y:58}, {id:"RM", label:"RM", x:86, y:52},
+    {id:"ST", label:"ST", x:50, y:18}
+  ],
+  "5-4-1 Linear": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"LWB", label:"LWB", x:8, y:70}, {id:"CB1", label:"CB", x:28, y:80},
+    {id:"CB2", label:"CB", x:50, y:82}, {id:"CB3", label:"CB", x:72, y:80},
+    {id:"RWB", label:"RWB", x:92, y:70},
+    {id:"LM", label:"LM", x:14, y:52}, {id:"CM1", label:"CM", x:38, y:56},
+    {id:"CM2", label:"CM", x:62, y:56}, {id:"RM", label:"RM", x:86, y:52},
+    {id:"ST", label:"ST", x:50, y:18}
+  ],
+  "3-4-2-1 DM": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"CB1", label:"CB", x:28, y:80}, {id:"CB2", label:"CB", x:50, y:82}, {id:"CB3", label:"CB", x:72, y:80},
+    {id:"LWB", label:"LWB", x:8, y:60}, {id:"RWB", label:"RWB", x:92, y:60},
+    {id:"CM1", label:"CM", x:36, y:58}, {id:"CM2", label:"CM", x:64, y:58},
+    {id:"AM1", label:"AM", x:36, y:38}, {id:"AM2", label:"AM", x:64, y:38},
+    {id:"ST", label:"ST", x:50, y:16}
+  ],
+  "3-5-2 DM AM": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"CB1", label:"CB", x:28, y:80}, {id:"CB2", label:"CB", x:50, y:82}, {id:"CB3", label:"CB", x:72, y:80},
+    {id:"LWB", label:"LWB", x:8, y:60}, {id:"RWB", label:"RWB", x:92, y:60},
+    {id:"DM", label:"DM", x:50, y:64},
+    {id:"CM1", label:"CM", x:26, y:48}, {id:"CM2", label:"CM", x:74, y:48},
+    {id:"AM", label:"AM", x:50, y:34},
+    {id:"ST", label:"ST", x:50, y:16}
+  ],
+  "3-4-3 DM Wide": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"CB1", label:"CB", x:28, y:80}, {id:"CB2", label:"CB", x:50, y:82}, {id:"CB3", label:"CB", x:72, y:80},
+    {id:"LWB", label:"LWB", x:8, y:60}, {id:"RWB", label:"RWB", x:92, y:60},
+    {id:"CM1", label:"CM", x:36, y:58}, {id:"CM2", label:"CM", x:64, y:58},
+    {id:"LW", label:"LW", x:14, y:28}, {id:"ST", label:"ST", x:50, y:16}, {id:"RW", label:"RW", x:86, y:28}
+  ],
+  "3-4-1-2 DM": [
+    {id:"GK", label:"GK", x:50, y:92},
+    {id:"CB1", label:"CB", x:28, y:80}, {id:"CB2", label:"CB", x:50, y:82}, {id:"CB3", label:"CB", x:72, y:80},
+    {id:"LWB", label:"LWB", x:8, y:60}, {id:"RWB", label:"RWB", x:92, y:60},
+    {id:"CM1", label:"CM", x:36, y:58}, {id:"CM2", label:"CM", x:64, y:58},
+    {id:"AM", label:"AM", x:50, y:38},
+    {id:"ST1", label:"ST", x:38, y:18}, {id:"ST2", label:"ST", x:62, y:18}
+  ]
+};
+
+function getLayout(name) {
+  if (FORMATION_LAYOUTS[name]) return FORMATION_LAYOUTS[name];
+  console.warn("Unknown formation:", name);
+  return FORMATION_LAYOUTS["4-3-3 DM Wide"];
+}
+
+function positionKey(label) {
+  const map = {GK:"GK",CB:"CB",LB:"FB",RB:"FB",LWB:"WB",RWB:"WB",
+               DM:"DM",CM:"CM",LM:"WM",RM:"WM",AM:"AM",
+               LW:"W",RW:"W",ST:"CF"};
+  return map[label] || "CM";
+}
+
+const STYLE_DESCRIPTIONS = {
+  "Catenaccio": "Defensive Italian classic",
+  "Control Possession": "Dominate the ball",
+  "Gegenpress": "High-intensity counter-press",
+  "Tiki-Taka": "Short passing & movement",
+  "Vertical Tiki-Taka": "Direct possession",
+  "Fluid Counter-Attack": "Fast transitions",
+  "Direct Counter-Attack": "Long balls & counter",
+  "Wing Play": "Attack down the flanks",
+  "Route One": "Direct long-ball football",
+  "Park the Bus": "Ultra-defensive"
+};
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const state = {
+  style: "Gegenpress",
+  tacticIndex: 0,
+  phase: "IP",
+  players: [],
+  selectedId: null,
+  teamInstr: {},
+  playerInstr: {},
+  theme: "auto",
+  tacticName: ""
+};
+
+const $ = s => document.querySelector(s);
+const styleSelect = $("#styleSelect");
+const tacticSelect = $("#tacticSelect");
+const pitch = $("#pitch");
+const playersLayer = $("#playersLayer");
+
+/* =========================================================
+   THEME
+   ========================================================= */
+function applyTheme() {
+  let effective = state.theme;
+  if (state.theme === "auto") {
+    effective = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  }
+  document.documentElement.setAttribute("data-theme", effective);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute("content", effective === "light" ? "#eef3f9" : "#0b1220");
+  const btn = $("#btnTheme");
+  const icons = { auto: "🌗", dark: "🌙", light: "☀️" };
+  btn.textContent = icons[state.theme];
+  btn.title = `Theme: ${state.theme}`;
+}
+$("#btnTheme").onclick = () => {
+  const order = ["auto", "dark", "light"];
+  state.theme = order[(order.indexOf(state.theme) + 1) % order.length];
+  applyTheme();
+  saveSettings();
+};
+window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => {
+  if (state.theme === "auto") applyTheme();
+});
+
+/* =========================================================
+   WIZARD
+   ========================================================= */
+let wizStep = 1;
+let wizStyle = null;
+let wizFormationIndex = 0;
+
+function renderWizardStyles() {
+  const el = $("#styleOptions");
+  el.innerHTML = "";
+  Object.keys(TACTICS).forEach(style => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "wiz-option" + (wizStyle === style ? " selected" : "");
+    btn.innerHTML = `
+      <div class="wo-title">${style}</div>
+      <div class="wo-sub">${STYLE_DESCRIPTIONS[style] || ""}</div>
+    `;
+    btn.onclick = () => {
+      wizStyle = style;
+      renderWizardStyles();
+      $("#wizNext").disabled = false;
+    };
+    el.appendChild(btn);
+  });
+}
+
+function renderWizardFormations() {
+  const el = $("#formationOptions");
+  el.innerHTML = "";
+  const tactics = TACTICS[wizStyle] || [];
+  tactics.forEach((t, i) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "wiz-option" + (wizFormationIndex === i ? " selected" : "");
+    btn.innerHTML = `
+      <div class="wo-title">${t.name.split(" / ")[0]}</div>
+      <div class="wo-sub">OOP: ${t.name.split(" / ")[1] || t.oop}</div>
+    `;
+    btn.onclick = () => {
+      wizFormationIndex = i;
+      renderWizardFormations();
+    };
+    el.appendChild(btn);
+  });
+}
+
+function updateWizardUI() {
+  document.querySelectorAll(".wizard-step").forEach(s => s.classList.remove("active"));
+  $(`#step${wizStep}`).classList.add("active");
+  document.querySelectorAll(".step-dots .dot").forEach((d, i) => {
+    d.classList.toggle("active", i + 1 === wizStep);
+    d.classList.toggle("done", i + 1 < wizStep);
+  });
+  $("#wizBack").disabled = wizStep === 1;
+  const nextBtn = $("#wizNext");
+  if (wizStep === 1) {
+    nextBtn.textContent = "Next →";
+    nextBtn.disabled = !wizStyle;
+  } else if (wizStep === 2) {
+    nextBtn.textContent = "Next →";
+    nextBtn.disabled = false;
+  } else {
+    nextBtn.textContent = "Start Planning ✨";
+    nextBtn.disabled = false;
+  }
+  if (wizStep === 3) {
+    $("#confirmStyle").textContent = wizStyle;
+    const t = TACTICS[wizStyle][wizFormationIndex];
+    $("#confirmFormation").textContent = t.name;
+    const nameInput = $("#wizTacticName");
+    if (!nameInput.value) {
+      nameInput.placeholder = `${wizStyle} – ${t.name.split(" / ")[0]}`;
+    }
+    setTimeout(() => nameInput.focus(), 120);
+  }
+}
+
+$("#wizNext").onclick = () => {
+  if (wizStep === 1) {
+    wizStep = 2;
+    renderWizardFormations();
+    updateWizardUI();
+  } else if (wizStep === 2) {
+    wizStep = 3;
+    updateWizardUI();
+  } else {
+    // Start from wizard
+    state.style = wizStyle;
+    state.tacticIndex = wizFormationIndex;
+    const nameInput = $("#wizTacticName");
+    state.tacticName = nameInput.value.trim();
+    $("#wizard").classList.add("hidden");
+    $("#app").classList.remove("hidden");
+    initSelectors();
+    loadPlayersFromTactic();
+    renderTeamPanel();
+  }
+};
+$("#wizBack").onclick = () => {
+  if (wizStep > 1) { wizStep--; updateWizardUI(); }
+};
+
+/* Wizard Load button: opens Load modal that sits ABOVE wizard */
+$("#wizLoadBtn").onclick = (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  // Open load modal in "wizard mode" — if a save is picked, it loads directly
+  openLoadModal(true);
+};
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !$("#wizard").classList.contains("hidden")) {
+    if (document.activeElement?.id === "wizTacticName" || wizStep < 3) {
+      e.preventDefault();
+      $("#wizNext").click();
+    }
+  }
+});
+
+/* =========================================================
+   SELECTORS
+   ========================================================= */
+function initSelectors() {
+  styleSelect.innerHTML = "";
+  Object.keys(TACTICS).forEach(s => {
+    const o = document.createElement("option"); o.value = s; o.textContent = s; styleSelect.appendChild(o);
+  });
+  styleSelect.value = state.style;
+  renderTacticOptions();
+}
+function renderTacticOptions() {
+  tacticSelect.innerHTML = "";
+  TACTICS[state.style].forEach((t, i) => {
+    const o = document.createElement("option");
+    o.value = i; o.textContent = t.name;
+    tacticSelect.appendChild(o);
+  });
+  tacticSelect.value = state.tacticIndex;
+}
+
+/* =========================================================
+   PLAYERS
+   ========================================================= */
+function loadPlayersFromTactic() {
+  const t = TACTICS[state.style][state.tacticIndex];
+  const formationName = state.phase === "IP" ? t.ip : t.oop;
+  const layout = getLayout(formationName);
+  state.players = layout.map(p => ({...p, role: null}));
+  state.selectedId = null;
+  state.playerInstr = {};
+  closeRoleMenu();
+  renderPitch();
+}
+
+function renderPitch() {
+  playersLayer.innerHTML = "";
+  state.players.forEach(p => {
+    const el = document.createElement("div");
+    el.className = "player" + (p.id === state.selectedId ? " selected" : "");
+    el.style.left = p.x + "%";
+    el.style.top  = p.y + "%";
+    el.dataset.id = p.id;
+    el.innerHTML = `
+      <div class="pos-badge">${p.label}</div>
+      <div class="role-label ${p.role ? "" : "empty"}">${p.role || "—"}</div>
+    `;
+    playersLayer.appendChild(el);
+    attachPointer(el, p);
+    el.addEventListener("click", e => {
+      if (el.dataset.dragged === "1") return;
+      selectPlayer(p.id);
+    });
+  });
+  // Adjust label widths AFTER layout is complete
+  requestAnimationFrame(() => {
+    requestAnimationFrame(adjustLabelWidths);
+  });
+}
+
+/* =========================================================
+   LABEL WIDTH ADJUSTMENT
+   Detects when two labels would overlap horizontally and
+   shrinks their max-width until they no longer touch.
+   Uses iterative approach: try current widths, if overlap,
+   shrink both, repeat until stable.
+   ========================================================= */
+function adjustLabelWidths() {
+  const players = Array.from(playersLayer.querySelectorAll(".player"));
+  if (!players.length) return;
+
+  // Reset all label widths first
+  players.forEach(p => {
+    const lbl = p.querySelector(".role-label");
+    if (lbl) {
+      lbl.style.maxWidth = "";
+    }
+  });
+
+  // Force reflow so widths recalc
+  void playersLayer.offsetWidth;
+
+  // Collect non-empty labels
+  const items = [];
+  players.forEach(p => {
+    const lbl = p.querySelector(".role-label");
+    if (!lbl || lbl.classList.contains("empty")) return;
+    items.push({ playerEl: p, labelEl: lbl });
+  });
+
+  if (items.length === 0) return;
+
+  // Iterative shrinking: up to 8 passes
+  for (let pass = 0; pass < 8; pass++) {
+    // Get current rects
+    const rects = items.map(it => ({
+      ...it,
+      rect: it.labelEl.getBoundingClientRect()
+    }));
+
+    // Find all overlapping pairs
+    let didShrink = false;
+    for (let i = 0; i < rects.length; i++) {
+      for (let j = i + 1; j < rects.length; j++) {
+        const a = rects[i], b = rects[j];
+        if (rectsOverlapWithBuffer(a.rect, b.rect, 2)) {
+          // Shrink both labels by 15% of their current max-width (min 60px)
+          [a, b].forEach(item => {
+            const cur = item.labelEl.getBoundingClientRect().width;
+            const newW = Math.max(60, Math.floor(cur * 0.85));
+            const curMax = parseFloat(item.labelEl.style.maxWidth) || cur;
+            const finalW = Math.max(60, Math.min(newW, curMax));
+            item.labelEl.style.maxWidth = finalW + "px";
+            didShrink = true;
+          });
+        }
+      }
+    }
+    if (!didShrink) break;
+    void playersLayer.offsetWidth;
+  }
+}
+
+function rectsOverlapWithBuffer(a, b, buf) {
+  return !(a.right + buf < b.left ||
+           b.right + buf < a.left ||
+           a.bottom + buf < b.top ||
+           b.bottom + buf < a.top);
+}
+
+let resizeTimer;
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(adjustLabelWidths, 100);
+});
+
+/* =========================================================
+   POINTER HANDLING
+   ========================================================= */
+function attachPointer(el, p) {
+  let dragging = false, startX, startY, origX, origY, pointerId = null;
+  let moveDist = 0;
+
+  el.addEventListener("pointerdown", e => {
+    if (e.button !== 0 && e.pointerType === "mouse") return;
+    dragging = true;
+    pointerId = e.pointerId;
+    moveDist = 0;
+    el.setPointerCapture(e.pointerId);
+    el.classList.add("dragging");
+    startX = e.clientX; startY = e.clientY;
+    origX = p.x; origY = p.y;
+  });
+
+  el.addEventListener("pointermove", e => {
+    if (!dragging || e.pointerId !== pointerId) return;
+    const rect = pitch.getBoundingClientRect();
+    const dx = (e.clientX - startX) / rect.width  * 100;
+    const dy = (e.clientY - startY) / rect.height * 100;
+    moveDist = Math.abs(dx) + Math.abs(dy);
+    p.x = Math.max(4, Math.min(96, origX + dx));
+    p.y = Math.max(4, Math.min(96, origY + dy));
+    el.style.left = p.x + "%";
+    el.style.top  = p.y + "%";
+    if (moveDist > 1.5) el.dataset.dragged = "1";
+    if (moveDist > 1.5) adjustLabelWidths();
+  });
+
+  const endDrag = () => {
+    if (!dragging) return;
+    dragging = false;
+    el.classList.remove("dragging");
+    setTimeout(() => {
+      el.dataset.dragged = "0";
+      adjustLabelWidths();
+    }, 100);
+  };
+  el.addEventListener("pointerup", endDrag);
+  el.addEventListener("pointercancel", endDrag);
+}
+
+/* =========================================================
+   SELECT PLAYER
+   ========================================================= */
+function selectPlayer(id) {
+  if (state.selectedId === id) {
+    closeRoleMenu();
+    state.selectedId = null;
+    renderPitch();
+    return;
+  }
+  state.selectedId = id;
+  renderPitch();
+  showRoleMenu(id);
+}
+
+/* =========================================================
+   ROLE MENU
+   ========================================================= */
+let currentRoleMenu = null;
+
+function closeRoleMenu() {
+  if (currentRoleMenu) {
+    currentRoleMenu.remove();
+    currentRoleMenu = null;
+  }
+}
+
+function showRoleMenu(playerId) {
+  closeRoleMenu();
+  const p = state.players.find(x => x.id === playerId);
+  if (!p) return;
+  const key = positionKey(p.label);
+  const roles = ROLES[key][state.phase];
+
+  const menu = document.createElement("div");
+  menu.className = "role-menu";
+  menu.innerHTML = `
+    <div class="role-menu-header">
+      <div class="title">
+        <div class="badge">${p.label}</div>
+        <div>
+          <div class="name">${p.label}</div>
+          <div class="phase">${state.phase === "IP" ? "In Possession" : "Out of Possession"}</div>
+        </div>
+      </div>
+      <button class="close" title="Close">✕</button>
+    </div>
+    <div class="role-menu-tabs">
+      <button class="tab active" data-tab="roles">Roles</button>
+      <button class="tab" data-tab="instructions">Instructions</button>
+    </div>
+    <div class="role-list" data-panel="roles"></div>
+    <div class="pi-tab-content hidden" data-panel="instructions"></div>
+  `;
+
+  const isMobile = window.matchMedia("(max-width: 900px)").matches;
+  if (!isMobile) {
+    const el = playersLayer.querySelector(`.player[data-id="${playerId}"]`);
+    const pr = pitch.getBoundingClientRect();
+    const er = el.getBoundingClientRect();
+    const menuW = 300, menuH = 460;
+    let left = er.right - pr.left + 14;
+    let top  = er.top  - pr.top - 8;
+    if (left + menuW > pr.width) left = er.left - pr.left - menuW - 14;
+    if (left < 8) left = 8;
+    if (left + menuW > pr.width - 8) left = pr.width - menuW - 8;
+    if (top + menuH > pr.height) top = pr.height - menuH - 8;
+    if (top < 8) top = 8;
+    menu.style.left = left + "px";
+    menu.style.top  = top + "px";
+    pitch.appendChild(menu);
+  } else {
+    document.body.appendChild(menu);
+  }
+  currentRoleMenu = menu;
+
+  const rolesPanel = menu.querySelector('[data-panel="roles"]');
+  rolesPanel.innerHTML = roles.map(r => `
+    <div class="role-option ${r === p.role ? "selected" : ""}" data-role="${r.replace(/"/g,'&quot;')}">
+      <span>${r}</span>
+    </div>
+  `).join("");
+  rolesPanel.querySelectorAll(".role-option").forEach(opt => {
+    opt.onclick = () => {
+      p.role = opt.dataset.role;
+      rolesPanel.querySelectorAll(".role-option").forEach(o => o.classList.toggle("selected", o.dataset.role === p.role));
+      renderPitch();
+    };
+  });
+
+  const instrPanel = menu.querySelector('[data-panel="instructions"]');
+  const groups = state.phase === "IP"
+    ? {"When Player Has the Ball": PLAYER_INSTRUCTIONS["When Player Has the Ball"],
+       "Off the Ball": PLAYER_INSTRUCTIONS["Off the Ball"]}
+    : {"When Opposition Has the Ball": PLAYER_INSTRUCTIONS["When Opposition Has the Ball"]};
+  instrPanel.innerHTML = "";
+  Object.entries(groups).forEach(([group, opts]) => {
+    const g = document.createElement("div");
+    g.className = "instr-group";
+    g.innerHTML = `<label>${group}</label>`;
+    const wrap = document.createElement("div");
+    wrap.className = "opts";
+    opts.forEach(opt => {
+      const c = document.createElement("span");
+      c.className = "chip";
+      const cur = state.playerInstr[p.id]?.[group] || [];
+      if (cur.includes(opt)) c.classList.add("active");
+      c.textContent = opt;
+      c.onclick = () => {
+        state.playerInstr[p.id] = state.playerInstr[p.id] || {};
+        const arr = state.playerInstr[p.id][group] || [];
+        const i = arr.indexOf(opt);
+        if (i >= 0) arr.splice(i, 1); else arr.push(opt);
+        state.playerInstr[p.id][group] = arr;
+        c.classList.toggle("active");
+      };
+      wrap.appendChild(c);
+    });
+    g.appendChild(wrap);
+    instrPanel.appendChild(g);
+  });
+
+  menu.querySelectorAll(".role-menu-tabs .tab").forEach(tab => {
+    tab.onclick = () => {
+      menu.querySelectorAll(".role-menu-tabs .tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      const target = tab.dataset.tab;
+      menu.querySelectorAll('[data-panel]').forEach(panel => {
+        panel.classList.toggle("hidden", panel.dataset.panel !== target);
+      });
+    };
+  });
+
+  menu.querySelector(".close").onclick = () => {
+    closeRoleMenu();
+    state.selectedId = null;
+    renderPitch();
+  };
+}
+
+/* =========================================================
+   TEAM INSTRUCTIONS + SUMMARY
+   ========================================================= */
+function renderTeamPanel() {
+  const ment = $("#teamMent");
+  const ip = $("#teamIP"), it = $("#teamIT"), oop = $("#teamOOP");
+  ment.innerHTML = ""; ip.innerHTML = ""; it.innerHTML = ""; oop.innerHTML = "";
+
+  const render = (target, phaseName, groupsData) => {
+    Object.entries(groupsData).forEach(([group, config]) => {
+      const isMulti = config.multi === true;
+      const opts = config.opts;
+
+      const g = document.createElement("div");
+      g.className = "instr-group" + (isMulti ? " multi" : "");
+      g.innerHTML = `<label>${group}</label>`;
+      const wrap = document.createElement("div");
+      wrap.className = "opts";
+      opts.forEach(opt => {
+        const c = document.createElement("span");
+        c.className = "chip";
+        const key = phaseName + "|" + group;
+        const current = state.teamInstr[key];
+        if (isMulti) {
+          const arr = Array.isArray(current) ? current : [];
+          if (arr.includes(opt)) c.classList.add("active");
+        } else {
+          if (current === opt) c.classList.add("active");
+        }
+        c.textContent = opt;
+        c.onclick = () => {
+          if (isMulti) {
+            const arr = Array.isArray(state.teamInstr[key]) ? [...state.teamInstr[key]] : [];
+            const i = arr.indexOf(opt);
+            if (i >= 0) arr.splice(i, 1); else arr.push(opt);
+            if (arr.length) state.teamInstr[key] = arr;
+            else delete state.teamInstr[key];
+          } else {
+            if (state.teamInstr[key] === opt) delete state.teamInstr[key];
+            else state.teamInstr[key] = opt;
+          }
+          renderTeamPanel();
+        };
+        wrap.appendChild(c);
+      });
+      g.appendChild(wrap);
+      target.appendChild(g);
+    });
+  };
+
+  render(ment, "Mentality", TEAM_INSTRUCTIONS["Mentality"].groups);
+  render(ip, "In Possession", TEAM_INSTRUCTIONS["In Possession"].groups);
+  render(it, "In Transition", TEAM_INSTRUCTIONS["In Transition"].groups);
+  render(oop, "Out of Possession", TEAM_INSTRUCTIONS["Out of Possession"].groups);
+
+  renderSummary();
+}
+
+function renderSummary() {
+  const wrap = $("#summaryContent");
+  wrap.innerHTML = "";
+  let total = 0;
+
+  const buildSection = (label, items) => {
+    if (!items.length) return;
+    const sectionEl = document.createElement("div");
+    sectionEl.className = "summary-section";
+    const titleEl = document.createElement("div");
+    titleEl.className = "ss-title";
+    titleEl.innerHTML = `${label}<span class="ss-count">${items.length}</span>`;
+    sectionEl.appendChild(titleEl);
+
+    const ul = document.createElement("ul");
+    ul.className = "summary-list";
+    items.forEach(item => {
+      const li = document.createElement("li");
+      li.className = "summary-item";
+      li.innerHTML = `
+        ${item.group ? `<span class="si-group">${escapeHtml(item.group)}</span>` : ""}
+        <span class="si-value">${escapeHtml(item.value)}</span>
+        <button class="si-remove" title="Remove" data-key="${escapeHtml(item.key)}" data-value="${escapeHtml(item.value)}">✕</button>
+      `;
+      ul.appendChild(li);
+    });
+    sectionEl.appendChild(ul);
+    wrap.appendChild(sectionEl);
+    total += items.length;
+  };
+
+  const mentVal = state.teamInstr["Mentality"];
+  const mentItems = mentVal ? [{ value: mentVal, key: "Mentality", group: null }] : [];
+  buildSection("Mentality", mentItems);
+
+  buildSection("In Possession", collectPhaseItems("In Possession"));
+  buildSection("In Transition", collectPhaseItems("In Transition"));
+  buildSection("Out of Possession", collectPhaseItems("Out of Possession"));
+
+  $("#sumTotal").textContent = total;
+
+  if (total === 0) {
+    wrap.innerHTML = `<div class="summary-empty">No instructions selected yet.<br>Click chips in the panel on the right to add them.</div>`;
+  }
+
+  wrap.querySelectorAll(".si-remove").forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const key = btn.dataset.key;
+      const value = btn.dataset.value;
+      const current = state.teamInstr[key];
+      if (Array.isArray(current)) {
+        const arr = current.filter(v => v !== value);
+        if (arr.length) state.teamInstr[key] = arr;
+        else delete state.teamInstr[key];
+      } else {
+        delete state.teamInstr[key];
+      }
+      renderTeamPanel();
+    };
+  });
+}
+
+function collectPhaseItems(phase) {
+  const items = [];
+  const config = TEAM_INSTRUCTIONS[phase];
+  if (!config) return items;
+  Object.entries(config.groups).forEach(([group, cfg]) => {
+    const isMulti = cfg.multi === true;
+    const key = phase + "|" + group;
+    const val = state.teamInstr[key];
+    if (!val) return;
+    if (isMulti && Array.isArray(val)) {
+      val.forEach(v => items.push({ group, value: v, key }));
+    } else if (typeof val === "string") {
+      items.push({ group, value: val, key });
+    }
+  });
+  return items;
+}
+
+/* =========================================================
+   SAVE / LOAD / EXPORT
+   ========================================================= */
+const STORAGE_KEY = "fm26planner.saves.v2";
+const SETTINGS_KEY = "fm26planner.settings";
+
+function getSaves() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; }
+}
+function setSaves(saves) { localStorage.setItem(STORAGE_KEY, JSON.stringify(saves)); }
+
+function serializeTactic() {
+  return {
+    version: 2,
+    style: state.style,
+    tacticIndex: state.tacticIndex,
+    phase: state.phase,
+    players: state.players.map(p => ({id:p.id, label:p.label, x:p.x, y:p.y, role:p.role})),
+    teamInstr: JSON.parse(JSON.stringify(state.teamInstr)),
+    playerInstr: JSON.parse(JSON.stringify(state.playerInstr)),
+    tacticName: state.tacticName
+  };
+}
+
+function applyTactic(data) {
+  if (!data || (data.version !== 1 && data.version !== 2)) {
+    toast("Invalid save file", "error");
+    return false;
+  }
+  state.style = data.style;
+  state.tacticIndex = data.tacticIndex;
+  state.phase = data.phase;
+  state.teamInstr = JSON.parse(JSON.stringify(data.teamInstr || {}));
+  state.playerInstr = JSON.parse(JSON.stringify(data.playerInstr || {}));
+  state.selectedId = null;
+  state.tacticName = data.tacticName || "";
+
+  if (data.players && data.players.length === 11) {
+    state.players = data.players.map(p => ({...p}));
+  } else {
+    const t = TACTICS[state.style][state.tacticIndex];
+    const formationName = state.phase === "IP" ? t.ip : t.oop;
+    state.players = getLayout(formationName).map(p => ({...p, role: null}));
+  }
+
+  // Close wizard AND open app
+  $("#wizard").classList.add("hidden");
+  $("#app").classList.remove("hidden");
+
+  initSelectors();
+  styleSelect.value = state.style;
+  renderTacticOptions();
+  tacticSelect.value = state.tacticIndex;
+  $("#phaseIP").classList.toggle("active", state.phase === "IP");
+  $("#phaseOOP").classList.toggle("active", state.phase === "OOP");
+  renderPitch();
+  renderTeamPanel();
+  closeRoleMenu();
+  return true;
+}
+
+function saveSettings() {
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify({theme: state.theme}));
+}
+function loadSettings() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+    if (s?.theme) state.theme = s.theme;
+  } catch {}
+}
+
+function newTactic() {
+  if (!confirm("Start a new tactic? All current changes will be lost.")) return;
+  state.teamInstr = {};
+  state.playerInstr = {};
+  state.selectedId = null;
+  state.tacticName = "";
+  wizStep = 1;
+  wizStyle = null;
+  wizFormationIndex = 0;
+  $("#wizTacticName").value = "";
+  $("#wizard").classList.remove("hidden");
+  $("#app").classList.add("hidden");
+  renderWizardStyles();
+  updateWizardUI();
+}
+
+function openSaveModal() {
+  const backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+  backdrop.innerHTML = `
+    <div class="modal" role="dialog">
+      <div class="m-header">
+        <h3>Save Tactic</h3>
+        <button class="m-close">✕</button>
+      </div>
+      <div class="m-body">
+        <label style="font-size:12px;color:var(--text-dim);font-weight:700;">Save name</label>
+        <input class="field-input" id="saveName" type="text" placeholder="e.g. My Gegenpress" maxlength="60">
+      </div>
+      <div class="m-actions">
+        <button class="btn" id="mCancel">Cancel</button>
+        <button class="btn primary" id="mConfirm">Save</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  const close = () => backdrop.remove();
+  backdrop.querySelector(".m-close").onclick = close;
+  backdrop.querySelector("#mCancel").onclick = close;
+  backdrop.addEventListener("pointerdown", e => { if (e.target === backdrop) close(); });
+
+  const input = backdrop.querySelector("#saveName");
+  const defaultName = state.tacticName ||
+    `${state.style} – ${TACTICS[state.style][state.tacticIndex].name.split(" / ")[0]}`;
+  input.value = defaultName;
+  setTimeout(() => { input.focus(); input.select(); }, 40);
+
+  const confirm = () => {
+    const name = input.value.trim() || defaultName;
+    state.tacticName = name;
+    const saves = getSaves();
+    saves.unshift({
+      id: Date.now() + "_" + Math.random().toString(36).slice(2,7),
+      name,
+      date: new Date().toISOString(),
+      data: serializeTactic()
+    });
+    setSaves(saves.slice(0, 50));
+    toast("Tactic saved", "success");
+    close();
+  };
+  backdrop.querySelector("#mConfirm").onclick = confirm;
+  input.addEventListener("keydown", e => { if (e.key === "Enter") confirm(); });
+}
+
+/* Load modal. If `fromWizard` is true, choosing a save will directly start the app. */
+function openLoadModal(fromWizard = false) {
+  const saves = getSaves();
+  const backdrop = document.createElement("div");
+  backdrop.className = "modal-backdrop";
+  backdrop.innerHTML = `
+    <div class="modal" role="dialog">
+      <div class="m-header">
+        <h3>${fromWizard ? "Load a saved tactic" : "Load Tactic"}</h3>
+        <button class="m-close">✕</button>
+      </div>
+      <div class="m-body">
+        <div class="saves-list" id="savesList"></div>
+      </div>
+      <div class="m-actions">
+        <button class="btn" id="importBtn">📥 Import JSON</button>
+        <button class="btn" id="mLcancel">Close</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+  const close = () => backdrop.remove();
+  backdrop.querySelector(".m-close").onclick = close;
+  backdrop.querySelector("#mLcancel").onclick = close;
+  backdrop.addEventListener("pointerdown", e => { if (e.target === backdrop) close(); });
+
+  const list = backdrop.querySelector("#savesList");
+  if (!saves.length) {
+    list.innerHTML = `<div class="empty-state">No saved tactics yet.<br>Use 💾 Save to create one.</div>`;
+  } else {
+    list.innerHTML = saves.map(s => `
+      <div class="save-item" data-id="${s.id}">
+        <div class="si-info">
+          <div class="si-name">${escapeHtml(s.name)}</div>
+          <div class="si-meta">${new Date(s.date).toLocaleString()} · ${escapeHtml(s.data.style)}</div>
+        </div>
+        <div class="si-actions">
+          <button data-act="load">Load</button>
+          <button data-act="delete" class="danger">Delete</button>
+        </div>
+      </div>
+    `).join("");
+
+    list.querySelectorAll(".save-item").forEach(item => {
+      const id = item.dataset.id;
+      item.querySelector('[data-act="load"]').onclick = () => {
+        const s = getSaves().find(x => x.id === id);
+        if (!s) return;
+        if (applyTactic(s.data)) {
+          close();
+          toast("Tactic loaded", "success");
+        }
+      };
+      item.querySelector('[data-act="delete"]').onclick = () => {
+        if (!confirm("Delete this save?")) return;
+        setSaves(getSaves().filter(x => x.id !== id));
+        item.remove();
+        if (!list.children.length) {
+          list.innerHTML = `<div class="empty-state">No saved tactics yet.</div>`;
+        }
+      };
+    });
+  }
+
+  backdrop.querySelector("#importBtn").onclick = () => {
+    const inp = document.createElement("input");
+    inp.type = "file"; inp.accept = "application/json,.json";
+    inp.onchange = () => {
+      const file = inp.files[0]; if (!file) return;
+      const r = new FileReader();
+      r.onload = () => {
+        try {
+          const data = JSON.parse(r.result);
+          if (applyTactic(data)) {
+            close();
+            toast("Tactic imported", "success");
+          }
+        } catch { toast("Failed to parse file", "error"); }
+      };
+      r.readAsText(file);
+    };
+    inp.click();
+  };
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function exportPNG() {
+  try {
+    const svgEl = pitch.querySelector("svg");
+    const svgClone = svgEl.cloneNode(true);
+    const cs = getComputedStyle(document.documentElement);
+    const grass1 = cs.getPropertyValue('--grass-1').trim() || '#1c5730';
+    const grass2 = cs.getPropertyValue('--grass-2').trim() || '#175029';
+    const lineColor = cs.getPropertyValue('--line').trim() || 'rgba(255,255,255,.82)';
+    svgClone.querySelectorAll('[fill="var(--grass-1)"]').forEach(el => el.setAttribute('fill', grass1));
+    svgClone.querySelectorAll('[fill="var(--grass-2)"]').forEach(el => el.setAttribute('fill', grass2));
+    svgClone.querySelectorAll('[stroke="var(--line)"]').forEach(el => el.setAttribute('stroke', lineColor));
+    svgClone.querySelectorAll('[fill="var(--line)"]').forEach(el => el.setAttribute('fill', lineColor));
+
+    const W = 680, H = 1050;
+    const ns = "http://www.w3.org/2000/svg";
+    const root = document.createElementNS(ns, "svg");
+    root.setAttribute("xmlns", ns);
+    root.setAttribute("width", W);
+    root.setAttribute("height", H);
+    root.setAttribute("viewBox", `0 0 ${W} ${H}`);
+
+    svgClone.removeAttribute('id');
+    svgClone.removeAttribute('width');
+    svgClone.removeAttribute('height');
+    svgClone.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    root.appendChild(svgClone);
+
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    state.players.forEach(p => {
+      const cx = (p.x / 100) * W;
+      const cy = (p.y / 100) * H;
+      const r = 30;
+      const g = document.createElementNS(ns, "g");
+      const c = document.createElementNS(ns, "circle");
+      c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", r);
+      c.setAttribute("fill", isLight ? "#dbeafe" : "#1e3a5f");
+      c.setAttribute("stroke", p.id === state.selectedId ? "#fbbf24" : (isLight ? "#2563eb" : "#3b82f6"));
+      c.setAttribute("stroke-width", "3");
+      g.appendChild(c);
+      const t1 = document.createElementNS(ns, "text");
+      t1.setAttribute("x", cx); t1.setAttribute("y", cy + 2);
+      t1.setAttribute("text-anchor", "middle");
+      t1.setAttribute("dominant-baseline", "middle");
+      t1.setAttribute("fill", isLight ? "#1e3a8a" : "#ffffff");
+      t1.setAttribute("font-family", "Inter, sans-serif");
+      t1.setAttribute("font-weight", "800");
+      t1.setAttribute("font-size", "16");
+      t1.textContent = p.label;
+      g.appendChild(t1);
+
+      const roleText = p.role || "—";
+      const words = roleText.split(" ");
+      const lines = [];
+      let cur = "";
+      words.forEach(w => {
+        if ((cur + " " + w).trim().length <= 20) cur = (cur + " " + w).trim();
+        else { if (cur) lines.push(cur); cur = w; }
+      });
+      if (cur) lines.push(cur);
+      const rw = Math.min(170, Math.max(40, Math.max(...lines.map(l => l.length)) * 6.6 + 16));
+      const rh = 12 + lines.length * 12;
+      const ry = cy + r + 9;
+
+      const rect = document.createElementNS(ns, "rect");
+      rect.setAttribute("x", cx - rw / 2);
+      rect.setAttribute("y", ry);
+      rect.setAttribute("width", rw);
+      rect.setAttribute("height", rh);
+      rect.setAttribute("rx", 8);
+      rect.setAttribute("fill", p.role ? "#3b82f6" : "#2e405f");
+      g.appendChild(rect);
+
+      lines.forEach((line, i) => {
+        const t2 = document.createElementNS(ns, "text");
+        t2.setAttribute("x", cx);
+        t2.setAttribute("y", ry + 10 + i * 12);
+        t2.setAttribute("text-anchor", "middle");
+        t2.setAttribute("fill", "#ffffff");
+        t2.setAttribute("font-family", "Inter, sans-serif");
+        t2.setAttribute("font-weight", "700");
+        t2.setAttribute("font-size", "10.5");
+        t2.textContent = line;
+        g.appendChild(t2);
+      });
+      root.appendChild(g);
+    });
+
+    const xml = new XMLSerializer().serializeToString(root);
+    const blob = new Blob([xml], {type: "image/svg+xml;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = W * 2;
+      canvas.height = H * 2;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = grass1;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(b => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(b);
+        a.download = `fm26-${(state.tacticName || state.style).replace(/\s+/g,"-")}-${state.phase}.png`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        URL.revokeObjectURL(url);
+        toast("Exported as PNG", "success");
+      }, "image/png");
+    };
+    img.onerror = () => { toast("Export failed", "error"); URL.revokeObjectURL(url); };
+    img.src = url;
+  } catch (e) {
+    console.error(e); toast("Export failed", "error");
+  }
+}
+
+function toast(msg, type = "") {
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  el.textContent = (type === "success" ? "✓ " : type === "error" ? "✕ " : "") + msg;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.opacity = "0"; el.style.transition = "opacity .25s"; }, 1600);
+  setTimeout(() => el.remove(), 1900);
+}
+
+/* =========================================================
+   EVENTS
+   ========================================================= */
+styleSelect.onchange = () => {
+  state.style = styleSelect.value;
+  state.tacticIndex = 0;
+  renderTacticOptions();
+  loadPlayersFromTactic();
+};
+tacticSelect.onchange = () => {
+  state.tacticIndex = +tacticSelect.value;
+  loadPlayersFromTactic();
+};
+$("#phaseIP").onclick = () => {
+  state.phase = "IP";
+  $("#phaseIP").classList.add("active");
+  $("#phaseOOP").classList.remove("active");
+  loadPlayersFromTactic();
+};
+$("#phaseOOP").onclick = () => {
+  state.phase = "OOP";
+  $("#phaseOOP").classList.add("active");
+  $("#phaseIP").classList.remove("active");
+  loadPlayersFromTactic();
+};
+$("#btnNew").onclick = newTactic;
+$("#btnSave").onclick = () => openSaveModal();
+$("#btnLoad").onclick = () => openLoadModal(false);
+$("#btnExport").onclick = exportPNG;
+
+document.addEventListener("pointerdown", e => {
+  if (currentRoleMenu && !currentRoleMenu.contains(e.target) && !e.target.closest(".player")) {
+    closeRoleMenu();
+    state.selectedId = null;
+    renderPitch();
+  }
+}, true);
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && currentRoleMenu) {
+    closeRoleMenu();
+    state.selectedId = null;
+    renderPitch();
+  }
+});
+
+document.addEventListener("dblclick", e => { e.preventDefault(); }, { passive: false });
+
+/* =========================================================
+   START
+   ========================================================= */
+loadSettings();
+applyTheme();
+renderWizardStyles();
+updateWizardUI();
+</script>
+</body>
+</html>

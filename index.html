@@ -135,7 +135,6 @@
     z-index: 1;
   }
   .wiz-load-btn:hover { border-color: var(--accent); color: var(--accent-2); transform: translateY(-1px); }
-  .wiz-load-btn:active { transform: scale(.97); }
 
   .wizard-step { display: none; }
   .wizard-step.active { display: block; animation: stepIn .25s ease-out; }
@@ -179,7 +178,7 @@
     background: var(--panel-2);
     border: 1.5px solid var(--border-2);
     border-radius: 12px;
-    padding: 14px 14px;
+    padding: 14px;
     cursor: pointer;
     transition: all .15s;
     text-align: left;
@@ -225,7 +224,6 @@
     font-size: 15px;
     font-weight: 700;
     font-family: inherit;
-    transition: border-color .15s, box-shadow .15s;
   }
   .wiz-name-field input:focus {
     outline: none;
@@ -281,12 +279,10 @@
     color: white;
     box-shadow: 0 4px 16px var(--accent-glow);
   }
-  .btn-lg.primary:hover { box-shadow: 0 6px 22px var(--accent-glow); color: white; }
   .btn-lg:disabled { opacity: .4; cursor: not-allowed; }
-  .btn-lg:disabled:hover { border-color: var(--border-2); color: var(--text); }
 
   /* =========================================================
-     APP — 3 columns
+     APP — desktop layout
      ========================================================= */
   .app {
     display: grid;
@@ -342,7 +338,6 @@
     font-weight: 600;
     cursor: pointer;
     font-family: inherit;
-    transition: border-color .15s;
     max-width: 210px;
     min-width: 130px;
   }
@@ -404,7 +399,6 @@
     color: white;
     box-shadow: 0 3px 12px var(--accent-glow);
   }
-  .btn.primary:hover { color: white; box-shadow: 0 5px 18px var(--accent-glow); }
   .btn.icon { padding: 8px 10px; font-size: 14px; }
 
   /* =========================================================
@@ -485,7 +479,6 @@
     box-shadow: 0 0 0 5px var(--gold-glow), 0 8px 24px rgba(0,0,0,.6);
   }
 
-  /* Role label */
   .player .role-label {
     font-size: 10.5px;
     font-weight: 800;
@@ -503,7 +496,6 @@
     min-width: 40px;
     max-width: 130px;
     transition: max-width .15s ease;
-    will-change: max-width;
   }
   .player .role-label.empty {
     background: var(--panel-3);
@@ -560,10 +552,9 @@
     font-size: 13px;
     color: white;
     box-shadow: 0 4px 12px var(--accent-glow);
-    letter-spacing: .02em;
     flex-shrink: 0;
   }
-  .role-menu-header .name { font-size: 13.5px; font-weight: 800; letter-spacing: -.01em; }
+  .role-menu-header .name { font-size: 13.5px; font-weight: 800; }
   .role-menu-header .phase {
     font-size: 10px;
     color: var(--text-dim);
@@ -580,9 +571,7 @@
     font-size: 16px;
     padding: 6px 9px;
     border-radius: 9px;
-    transition: all .15s;
     font-family: inherit;
-    flex-shrink: 0;
   }
   .role-menu-header .close:hover { background: var(--panel-3); color: var(--text); }
 
@@ -714,7 +703,7 @@
     overflow: hidden;
   }
   .summary-panel .sum-header {
-    padding: 14px 14px 12px;
+    padding: 14px;
     border-bottom: 1px solid var(--border);
     background: var(--panel-2);
     display: flex;
@@ -745,7 +734,6 @@
     font-weight: 900;
     padding: 2px 7px;
     border-radius: 8px;
-    letter-spacing: 0;
   }
   .summary-panel .sum-body {
     flex: 1;
@@ -783,7 +771,6 @@
     padding: 1px 6px;
     border-radius: 6px;
     font-weight: 900;
-    letter-spacing: 0;
     margin-left: auto;
   }
   .summary-list {
@@ -817,11 +804,7 @@
     display: block;
     margin-bottom: 1px;
   }
-  .summary-item .si-value {
-    font-weight: 700;
-    font-size: 11px;
-    word-break: break-word;
-  }
+  .summary-item .si-value { font-weight: 700; font-size: 11px; word-break: break-word; }
   .summary-item .si-remove {
     margin-left: auto;
     background: transparent;
@@ -834,7 +817,6 @@
     font-family: inherit;
     line-height: 1;
     flex-shrink: 0;
-    transition: all .15s;
   }
   .summary-item .si-remove:hover { color: var(--red); background: rgba(239,68,68,.1); }
   .summary-empty {
@@ -859,7 +841,6 @@
   }
   aside.panel::-webkit-scrollbar { width: 8px; }
   aside.panel::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 4px; }
-  aside.panel::-webkit-scrollbar-track { background: transparent; }
 
   .section-title {
     font-size: 10px;
@@ -881,7 +862,17 @@
   }
 
   /* =========================================================
-     MODAL — z-index iznad wizarda (600 > 500)
+     MOBILE TABS
+     ========================================================= */
+  .mobile-tabs {
+    display: none;
+  }
+  .mobile-tab-content {
+    display: none;
+  }
+
+  /* =========================================================
+     MODAL
      ========================================================= */
   .modal-backdrop {
     position: fixed; inset: 0;
@@ -993,68 +984,240 @@
   .toast.error { border-color: var(--red); }
 
   /* =========================================================
-     RESPONSIVE
+     DESKTOP-ONLY: hide mobile tabs
      ========================================================= */
-  @media (max-width: 1280px) {
-    .app { grid-template-columns: 1fr 240px 300px; }
+  @media (min-width: 901px) {
+    .mobile-tabs { display: none !important; }
+    .mobile-tab-content { display: none !important; }
+    /* Desktop grid shows summary + instructions normally */
+    .app .summary-panel,
+    .app aside.panel { display: flex; }
+    .app .pitch-wrap { display: flex; }
   }
-  @media (max-width: 1100px) {
-    .app {
-      grid-template-columns: 1fr 320px;
-      grid-template-rows: 60px 1fr 240px;
-    }
-    header { grid-column: 1/3; }
-    .pitch-wrap { grid-column: 1/2; grid-row: 2/3; }
-    aside.panel { grid-column: 2/3; grid-row: 2/3; }
-    .summary-panel {
-      grid-column: 1/3;
-      grid-row: 3/4;
-      border-left: none;
-      border-right: none;
-      border-top: 1px solid var(--border);
-    }
-    .summary-panel .sum-body {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 8px;
-      align-items: start;
-    }
-  }
+
+  /* =========================================================
+     MOBILE — TAB LAYOUT
+     ========================================================= */
   @media (max-width: 900px) {
+    /* App becomes flex column: header → tab bar → content */
     .app {
-      grid-template-columns: 1fr;
-      grid-template-rows: 56px auto 1fr auto;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      height: 100dvh;
+      width: 100%;
+      padding-top: env(safe-area-inset-top, 0px);
     }
-    header { grid-column: 1; grid-row: 1; padding: 0 12px; gap: 8px; }
-    .pitch-wrap { grid-column: 1; grid-row: 2; padding: 12px; min-height: 45vh; }
-    .summary-panel { grid-column: 1; grid-row: 3; max-height: 30vh; }
-    aside.panel {
-      grid-column: 1;
-      grid-row: 4;
-      border-left: none;
-      border-top: 1px solid var(--border);
-      max-height: 40vh;
-      padding: 14px 14px calc(20px + env(safe-area-inset-bottom, 0px));
+
+    /* Compact header: only logo + action buttons */
+    header {
+      flex: 0 0 auto;
+      padding: 8px 10px;
+      gap: 6px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
     }
-    .logo { font-size: 14px; }
+    .logo { font-size: 14px; padding-right: 6px; margin-right: 0; border-right: none; }
     .logo::before { font-size: 15px; }
-    .header-controls { gap: 6px; }
-    select.native { padding: 8px 8px; font-size: 12px; min-width: 90px; max-width: none; }
-    .phase-toggle button { padding: 7px 10px; font-size: 11px; }
-    .btn { padding: 8px 10px; font-size: 11.5px; }
+    .logo-text { display: none; }
+    .header-controls { display: none; }  /* Style/Formation move to tabs */
+    .header-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .header-actions .btn {
+      padding: 7px 9px;
+      font-size: 11px;
+      min-height: 34px;
+      min-width: 34px;
+      justify-content: center;
+    }
+    .header-actions .btn .btn-label { display: none; }
+    .header-actions .btn.icon { padding: 7px 9px; }
 
-    .pitch { max-height: 55vh; }
-    .player .pos-badge { width: 48px; height: 48px; font-size: 12px; }
-    .player .role-label { font-size: 10px; padding: 4px 8px; max-width: 110px; }
+    /* Mobile tab bar */
+    .mobile-tabs {
+      display: flex;
+      flex: 0 0 auto;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding: 6px 8px;
+      gap: 5px;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+    .mobile-tabs::-webkit-scrollbar { display: none; }
+    .mobile-tab {
+      flex: 0 0 auto;
+      background: var(--panel-2);
+      border: 1px solid var(--border-2);
+      color: var(--text-dim);
+      padding: 8px 12px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: all .15s;
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .mobile-tab.active {
+      background: var(--role-grad);
+      border-color: transparent;
+      color: white;
+      box-shadow: 0 3px 10px var(--accent-glow);
+    }
+    .mobile-tab .tab-badge {
+      background: rgba(255,255,255,.25);
+      color: white;
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 5px;
+      font-weight: 900;
+    }
+    .mobile-tab:not(.active) .tab-badge {
+      background: var(--accent);
+      color: white;
+    }
 
+    /* Hide desktop panels */
+    .app .summary-panel,
+    .app aside.panel,
+    .app .pitch-wrap {
+      display: none !important;
+    }
+
+    /* Show mobile content wrapper */
+    .mobile-content {
+      display: flex !important;
+      flex: 1 1 auto;
+      overflow: hidden;
+      position: relative;
+    }
+    .mobile-tab-content {
+      display: none;
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .mobile-tab-content.active {
+      display: block;
+    }
+
+    /* Tab: Pitch */
+    .mobile-tab-content[data-tab="pitch"] {
+      padding: 8px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 50% 40%, var(--accent-glow) 0%, transparent 55%),
+        var(--bg-2);
+    }
+    .mobile-tab-content[data-tab="pitch"].active {
+      display: flex;
+    }
+    .mobile-tab-content[data-tab="pitch"] .pitch {
+      height: 100%;
+      max-height: 100%;
+      max-width: 100%;
+      width: auto;
+      aspect-ratio: 68 / 105;
+    }
+
+    /* Bigger player tokens on mobile pitch */
+    .mobile-tab-content[data-tab="pitch"] .player .pos-badge {
+      width: 44px;
+      height: 44px;
+      font-size: 11px;
+      border-width: 2.5px;
+    }
+    .mobile-tab-content[data-tab="pitch"] .player .role-label {
+      font-size: 9.5px;
+      padding: 3px 7px;
+      max-width: 100px;
+    }
+
+    /* Tab: Style */
+    .mobile-tab-content[data-tab="style"] .wizard-options,
+    .mobile-tab-content[data-tab="formation"] .wizard-options {
+      grid-template-columns: 1fr;
+      max-height: none;
+      margin-bottom: 0;
+    }
+
+    /* Tab: Instructions — sections */
+    .mobile-tab-content[data-tab="instructions"] .section-title {
+      margin: 14px 0 8px;
+      font-size: 11px;
+    }
+    .mobile-tab-content[data-tab="instructions"] .chip {
+      padding: 9px 12px;
+      font-size: 12px;
+      min-height: 38px;
+    }
+
+    /* Tab: Summary */
+    .mobile-tab-content[data-tab="summary"] .summary-section {
+      margin-bottom: 10px;
+    }
+    .mobile-tab-content[data-tab="summary"] .summary-item {
+      font-size: 12px;
+    }
+    .mobile-tab-content[data-tab="summary"] .si-value { font-size: 12px; }
+
+    /* Tab: Theme */
+    .mobile-tab-content[data-tab="theme"] .theme-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .theme-btn {
+      background: var(--panel-2);
+      border: 2px solid var(--border-2);
+      border-radius: 12px;
+      padding: 16px 12px;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--text);
+      transition: all .15s;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-height: 80px;
+      justify-content: center;
+    }
+    .theme-btn.selected {
+      border-color: var(--accent);
+      background: rgba(59,130,246,.15);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .theme-btn .tb-icon { font-size: 22px; }
+    .theme-btn .tb-label { font-size: 12px; font-weight: 800; }
+
+    /* Role menu — bottom sheet on mobile */
     .role-menu {
       position: fixed;
-      left: 12px; right: 12px;
-      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+      left: 10px; right: 10px;
+      bottom: calc(10px + env(safe-area-inset-bottom, 0px));
       top: auto !important;
       width: auto;
       max-width: none;
-      max-height: 70vh;
+      max-height: 78vh;
       border-radius: 20px;
       animation: sheetUp .25s cubic-bezier(.2,.9,.3,1.2);
     }
@@ -1063,34 +1226,41 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .role-menu-header { padding: 18px 16px 12px; }
-    .role-list { max-height: none; }
-    .role-option { padding: 13px 14px; font-size: 13.5px; min-height: 46px; }
+    .role-list { max-height: none; padding: 8px 10px 14px; }
+    .role-option { padding: 14px 15px; font-size: 14px; min-height: 48px; }
     .pi-tab-content { max-height: none; padding: 14px 16px 20px; }
-    .chip { padding: 8px 11px; font-size: 11.5px; min-height: 34px; }
-    .modal { width: 100%; }
-  }
-  @media (max-width: 640px) {
-    header { padding: 0 10px; gap: 6px; }
-    .logo { display: none; }
-    .header-controls { flex: 1; min-width: 0; gap: 5px; }
-    .header-actions { gap: 4px; }
-    select.native { padding: 7px 6px; font-size: 11.5px; min-width: 80px; }
-    .phase-toggle button { padding: 7px 7px; font-size: 10.5px; }
-    .phase-toggle button .pt-full { display: none; }
-    .phase-toggle button .pt-short { display: inline; }
-    .btn span.btn-label { display: none; }
-    .btn { padding: 8px 9px; gap: 0; }
-    .player .pos-badge { width: 44px; height: 44px; font-size: 11px; border-width: 2px; }
-    .player .role-label { font-size: 9.5px; padding: 3px 7px; max-width: 100px; }
-    .wizard-card { padding: 22px 18px; border-radius: 16px; }
+
+    /* Wizard: full width on mobile */
+    .wizard { padding: 12px; }
+    .wizard-card { padding: 20px 16px; border-radius: 16px; }
     .wizard-header .logo { font-size: 22px; }
     .wizard-header .logo::before { font-size: 24px; }
-    .wizard-options { grid-template-columns: 1fr; max-height: 50vh; }
-    .btn-lg { padding: 11px 16px; font-size: 13px; }
-    .wiz-load-btn { padding: 8px 11px; font-size: 11.5px; }
+    .wizard-options { grid-template-columns: 1fr; max-height: 60vh; }
+    .btn-lg { padding: 12px 18px; font-size: 13.5px; }
+    .wiz-load-btn { padding: 9px 12px; font-size: 12px; }
+
+    /* Modal — full width */
+    .modal { width: 100%; border-radius: 16px; }
+    .modal .m-header { padding: 14px 16px; }
+    .modal .m-body { padding: 16px; }
+    .modal .m-actions { padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px)); }
   }
-  @media (min-width: 641px) {
-    .phase-toggle button .pt-short { display: none; }
+
+  /* Small mobile — hide labels, icon-only buttons */
+  @media (max-width: 500px) {
+    .header-actions .btn { padding: 6px 8px; font-size: 10.5px; min-height: 32px; min-width: 32px; }
+    .mobile-tab { padding: 7px 10px; font-size: 11px; }
+    .mobile-tab-content[data-tab="pitch"] .player .pos-badge { width: 40px; height: 40px; font-size: 10px; }
+    .mobile-tab-content[data-tab="pitch"] .player .role-label { font-size: 9px; padding: 3px 6px; max-width: 90px; }
+  }
+
+  /* Desktop: hide mobile content wrapper */
+  @media (min-width: 901px) {
+    .mobile-content { display: none !important; }
+  }
+
+  @media (min-width: 641px) and (max-width: 900px) {
+    .phase-toggle button .pt-short { display: inline; }
   }
 
   .hidden { display: none !important; }
@@ -1098,7 +1268,9 @@
 </head>
 <body>
 
-<!-- WIZARD -->
+<!-- ============================================================
+     WIZARD
+     ============================================================ -->
 <div class="wizard" id="wizard">
   <div class="wizard-card">
     <div class="wizard-header">
@@ -1147,11 +1319,13 @@
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- ============================================================
+     MAIN APP
+     ============================================================ -->
 <div class="app hidden" id="app">
 
   <header>
-    <span class="logo">FM26 Planner</span>
+    <span class="logo">⚽<span class="logo-text"> FM26 Planner</span></span>
     <div class="header-controls">
       <select class="native" id="styleSelect" title="Playing style"></select>
       <select class="native" id="tacticSelect" title="Formation"></select>
@@ -1165,7 +1339,7 @@
       </div>
     </div>
     <div class="header-actions">
-      <button class="btn primary" id="btnNew" title="New tactic">✨<span class="btn-label"> New</span></button>
+      <button class="btn primary" id="btnNew" title="New">✨<span class="btn-label"> New</span></button>
       <button class="btn" id="btnSave" title="Save">💾<span class="btn-label"> Save</span></button>
       <button class="btn" id="btnLoad" title="Load">📂<span class="btn-label"> Load</span></button>
       <button class="btn" id="btnExport" title="Export PNG">🖼<span class="btn-label"> Export</span></button>
@@ -1173,41 +1347,91 @@
     </div>
   </header>
 
+  <!-- MOBILE TAB BAR -->
+  <div class="mobile-tabs" id="mobileTabs">
+    <button class="mobile-tab active" data-tab="pitch">⚽ Pitch</button>
+    <button class="mobile-tab" data-tab="style">🎨 Style</button>
+    <button class="mobile-tab" data-tab="formation">📐 Formation</button>
+    <button class="mobile-tab" data-tab="instructions">⚙️ Instructions</button>
+    <button class="mobile-tab" data-tab="summary">📋 Summary <span class="tab-badge" id="sumTabBadge">0</span></button>
+    <button class="mobile-tab" data-tab="theme">🌗 Theme</button>
+  </div>
+
+  <!-- MOBILE CONTENT -->
+  <div class="mobile-content">
+
+    <!-- Tab: Pitch -->
+    <div class="mobile-tab-content active" data-tab="pitch">
+      <div class="pitch" id="mobilePitch">
+        <!-- SVG pitch injected by JS -->
+      </div>
+    </div>
+
+    <!-- Tab: Style -->
+    <div class="mobile-tab-content" data-tab="style">
+      <div class="section-title" style="margin-top:0;">Playing Style</div>
+      <div class="wizard-options" id="mobileStyleOptions" style="margin-bottom:0;"></div>
+    </div>
+
+    <!-- Tab: Formation -->
+    <div class="mobile-tab-content" data-tab="formation">
+      <div class="section-title" style="margin-top:0;">Formation</div>
+      <div class="wizard-options" id="mobileFormationOptions" style="margin-bottom:0;"></div>
+      <div class="section-title">Phase</div>
+      <div class="phase-toggle" style="margin-top:4px;">
+        <button id="phaseIPMobile" class="active" style="flex:1;padding:12px 14px;font-size:12.5px;">In Possession</button>
+        <button id="phaseOOPMobile" style="flex:1;padding:12px 14px;font-size:12.5px;">Out of Possession</button>
+      </div>
+    </div>
+
+    <!-- Tab: Instructions -->
+    <div class="mobile-tab-content" data-tab="instructions">
+      <div class="section-title" style="margin-top:0;">Mentality</div>
+      <div id="mobileTeamMent"></div>
+      <div class="section-title">In Possession</div>
+      <div id="mobileTeamIP"></div>
+      <div class="section-title">In Transition</div>
+      <div id="mobileTeamIT"></div>
+      <div class="section-title">Out of Possession</div>
+      <div id="mobileTeamOOP"></div>
+    </div>
+
+    <!-- Tab: Summary -->
+    <div class="mobile-tab-content" data-tab="summary">
+      <div class="section-title" style="margin-top:0;">Selected Instructions</div>
+      <div id="mobileSummaryContent"></div>
+    </div>
+
+    <!-- Tab: Theme -->
+    <div class="mobile-tab-content" data-tab="theme">
+      <div class="section-title" style="margin-top:0;">Appearance</div>
+      <div class="theme-grid">
+        <button class="theme-btn" data-theme-val="auto">
+          <span class="tb-icon">🌗</span>
+          <span class="tb-label">Auto</span>
+        </button>
+        <button class="theme-btn" data-theme-val="dark">
+          <span class="tb-icon">🌙</span>
+          <span class="tb-label">Dark</span>
+        </button>
+        <button class="theme-btn" data-theme-val="light">
+          <span class="tb-icon">☀️</span>
+          <span class="tb-label">Light</span>
+        </button>
+      </div>
+      <div class="section-title" style="margin-top:22px;">Info</div>
+      <div style="background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--text-dim);line-height:1.6;">
+        <b style="color:var(--text);">FM26 Planner v12</b><br>
+        Design tactics, pick roles and instructions. Drag players to reposition. Save, load and export.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- DESKTOP COLUMNS -->
   <main class="pitch-wrap">
     <div class="pitch" id="pitch">
-      <svg viewBox="0 0 680 1050" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <pattern id="stripes" width="680" height="75" patternUnits="userSpaceOnUse">
-            <rect width="680" height="75" fill="var(--grass-1)"/>
-            <rect y="37.5" width="680" height="37.5" fill="var(--grass-2)"/>
-          </pattern>
-          <radialGradient id="vignette" cx="50%" cy="50%" r="75%">
-            <stop offset="55%" stop-color="rgba(0,0,0,0)"/>
-            <stop offset="100%" stop-color="rgba(0,0,0,.28)"/>
-          </radialGradient>
-        </defs>
-        <rect x="0" y="0" width="680" height="1050" fill="url(#stripes)"/>
-        <rect x="0" y="0" width="680" height="1050" fill="url(#vignette)"/>
-        <rect x="20" y="20" width="640" height="1010" fill="none" stroke="var(--line)" stroke-width="2.5"/>
-        <line x1="20" y1="525" x2="660" y2="525" stroke="var(--line)" stroke-width="2"/>
-        <circle cx="340" cy="525" r="80" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <circle cx="340" cy="525" r="3.5" fill="var(--line)"/>
-        <rect x="130" y="20" width="420" height="160" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <rect x="225" y="20" width="230" height="55" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <circle cx="340" cy="125" r="3" fill="var(--line)"/>
-        <path d="M 253 180 A 88 88 0 0 0 427 180" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <rect x="295" y="8" width="90" height="12" fill="none" stroke="var(--line)" stroke-width="2.5"/>
-        <rect x="130" y="870" width="420" height="160" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <rect x="225" y="975" width="230" height="55" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <circle cx="340" cy="925" r="3" fill="var(--line)"/>
-        <path d="M 253 870 A 88 88 0 0 1 427 870" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <rect x="295" y="1030" width="90" height="12" fill="none" stroke="var(--line)" stroke-width="2.5"/>
-        <path d="M 20 40 A 20 20 0 0 1 40 20" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <path d="M 640 20 A 20 20 0 0 1 660 40" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <path d="M 20 1010 A 20 20 0 0 0 40 1030" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <path d="M 640 1030 A 20 20 0 0 0 660 1010" fill="none" stroke="var(--line)" stroke-width="2"/>
-      </svg>
-      <div class="players-layer" id="playersLayer"></div>
+      <!-- SVG injected -->
     </div>
   </main>
 
@@ -1234,7 +1458,7 @@
 
 <script>
 /* =========================================================
-   DATA (same as v10)
+   DATA
    ========================================================= */
 const TACTICS = {
   "Catenaccio": [
@@ -1651,6 +1875,47 @@ const STYLE_DESCRIPTIONS = {
 };
 
 /* =========================================================
+   PITCH SVG (shared)
+   ========================================================= */
+function getPitchSVGString() {
+  return `
+      <svg viewBox="0 0 680 1050" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <pattern id="stripes" width="680" height="75" patternUnits="userSpaceOnUse">
+            <rect width="680" height="75" fill="var(--grass-1)"/>
+            <rect y="37.5" width="680" height="37.5" fill="var(--grass-2)"/>
+          </pattern>
+          <radialGradient id="vignette" cx="50%" cy="50%" r="75%">
+            <stop offset="55%" stop-color="rgba(0,0,0,0)"/>
+            <stop offset="100%" stop-color="rgba(0,0,0,.28)"/>
+          </radialGradient>
+        </defs>
+        <rect x="0" y="0" width="680" height="1050" fill="url(#stripes)"/>
+        <rect x="0" y="0" width="680" height="1050" fill="url(#vignette)"/>
+        <rect x="20" y="20" width="640" height="1010" fill="none" stroke="var(--line)" stroke-width="2.5"/>
+        <line x1="20" y1="525" x2="660" y2="525" stroke="var(--line)" stroke-width="2"/>
+        <circle cx="340" cy="525" r="80" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <circle cx="340" cy="525" r="3.5" fill="var(--line)"/>
+        <rect x="130" y="20" width="420" height="160" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <rect x="225" y="20" width="230" height="55" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <circle cx="340" cy="125" r="3" fill="var(--line)"/>
+        <path d="M 253 180 A 88 88 0 0 0 427 180" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <rect x="295" y="8" width="90" height="12" fill="none" stroke="var(--line)" stroke-width="2.5"/>
+        <rect x="130" y="870" width="420" height="160" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <rect x="225" y="975" width="230" height="55" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <circle cx="340" cy="925" r="3" fill="var(--line)"/>
+        <path d="M 253 870 A 88 88 0 0 1 427 870" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <rect x="295" y="1030" width="90" height="12" fill="none" stroke="var(--line)" stroke-width="2.5"/>
+        <path d="M 20 40 A 20 20 0 0 1 40 20" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <path d="M 640 20 A 20 20 0 0 1 660 40" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <path d="M 20 1010 A 20 20 0 0 0 40 1030" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <path d="M 640 1030 A 20 20 0 0 0 660 1010" fill="none" stroke="var(--line)" stroke-width="2"/>
+      </svg>
+      <div class="players-layer"></div>
+  `;
+}
+
+/* =========================================================
    STATE
    ========================================================= */
 const state = {
@@ -1662,14 +1927,15 @@ const state = {
   teamInstr: {},
   playerInstr: {},
   theme: "auto",
-  tacticName: ""
+  tacticName: "",
+  mobileTab: "pitch"
 };
 
 const $ = s => document.querySelector(s);
-const styleSelect = $("#styleSelect");
-const tacticSelect = $("#tacticSelect");
-const pitch = $("#pitch");
-const playersLayer = $("#playersLayer");
+
+/* References to desktop and mobile pitches */
+let desktopPitch, mobilePitch;
+let desktopPlayersLayer, mobilePlayersLayer;
 
 /* =========================================================
    THEME
@@ -1684,17 +1950,31 @@ function applyTheme() {
   if (meta) meta.setAttribute("content", effective === "light" ? "#eef3f9" : "#0b1220");
   const btn = $("#btnTheme");
   const icons = { auto: "🌗", dark: "🌙", light: "☀️" };
-  btn.textContent = icons[state.theme];
-  btn.title = `Theme: ${state.theme}`;
+  if (btn) { btn.textContent = icons[state.theme]; btn.title = `Theme: ${state.theme}`; }
+  // Update mobile theme grid
+  document.querySelectorAll(".theme-btn").forEach(b => {
+    b.classList.toggle("selected", b.dataset.themeVal === state.theme);
+  });
+  // Recompute label widths after theme swap
+  setTimeout(() => { adjustLabelWidths(desktopPlayersLayer); adjustLabelWidths(mobilePlayersLayer); }, 50);
 }
-$("#btnTheme").onclick = () => {
+function cycleTheme() {
   const order = ["auto", "dark", "light"];
   state.theme = order[(order.indexOf(state.theme) + 1) % order.length];
   applyTheme();
   saveSettings();
-};
+}
+function setTheme(val) {
+  state.theme = val;
+  applyTheme();
+  saveSettings();
+}
+$("#btnTheme").onclick = cycleTheme;
 window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => {
   if (state.theme === "auto") applyTheme();
+});
+document.querySelectorAll(".theme-btn").forEach(b => {
+  b.onclick = () => setTheme(b.dataset.themeVal);
 });
 
 /* =========================================================
@@ -1753,42 +2033,26 @@ function updateWizardUI() {
   });
   $("#wizBack").disabled = wizStep === 1;
   const nextBtn = $("#wizNext");
-  if (wizStep === 1) {
-    nextBtn.textContent = "Next →";
-    nextBtn.disabled = !wizStyle;
-  } else if (wizStep === 2) {
-    nextBtn.textContent = "Next →";
-    nextBtn.disabled = false;
-  } else {
-    nextBtn.textContent = "Start Planning ✨";
-    nextBtn.disabled = false;
-  }
+  if (wizStep === 1) { nextBtn.textContent = "Next →"; nextBtn.disabled = !wizStyle; }
+  else if (wizStep === 2) { nextBtn.textContent = "Next →"; nextBtn.disabled = false; }
+  else { nextBtn.textContent = "Start Planning ✨"; nextBtn.disabled = false; }
   if (wizStep === 3) {
     $("#confirmStyle").textContent = wizStyle;
     const t = TACTICS[wizStyle][wizFormationIndex];
     $("#confirmFormation").textContent = t.name;
     const nameInput = $("#wizTacticName");
-    if (!nameInput.value) {
-      nameInput.placeholder = `${wizStyle} – ${t.name.split(" / ")[0]}`;
-    }
+    if (!nameInput.value) nameInput.placeholder = `${wizStyle} – ${t.name.split(" / ")[0]}`;
     setTimeout(() => nameInput.focus(), 120);
   }
 }
 
 $("#wizNext").onclick = () => {
-  if (wizStep === 1) {
-    wizStep = 2;
-    renderWizardFormations();
-    updateWizardUI();
-  } else if (wizStep === 2) {
-    wizStep = 3;
-    updateWizardUI();
-  } else {
-    // Start from wizard
+  if (wizStep === 1) { wizStep = 2; renderWizardFormations(); updateWizardUI(); }
+  else if (wizStep === 2) { wizStep = 3; updateWizardUI(); }
+  else {
     state.style = wizStyle;
     state.tacticIndex = wizFormationIndex;
-    const nameInput = $("#wizTacticName");
-    state.tacticName = nameInput.value.trim();
+    state.tacticName = $("#wizTacticName").value.trim();
     $("#wizard").classList.add("hidden");
     $("#app").classList.remove("hidden");
     initSelectors();
@@ -1796,15 +2060,11 @@ $("#wizNext").onclick = () => {
     renderTeamPanel();
   }
 };
-$("#wizBack").onclick = () => {
-  if (wizStep > 1) { wizStep--; updateWizardUI(); }
-};
+$("#wizBack").onclick = () => { if (wizStep > 1) { wizStep--; updateWizardUI(); } };
 
-/* Wizard Load button: opens Load modal that sits ABOVE wizard */
 $("#wizLoadBtn").onclick = (e) => {
   e.preventDefault();
   e.stopPropagation();
-  // Open load modal in "wizard mode" — if a save is picked, it loads directly
   openLoadModal(true);
 };
 
@@ -1821,14 +2081,18 @@ document.addEventListener("keydown", e => {
    SELECTORS
    ========================================================= */
 function initSelectors() {
+  const styleSelect = $("#styleSelect");
   styleSelect.innerHTML = "";
   Object.keys(TACTICS).forEach(s => {
     const o = document.createElement("option"); o.value = s; o.textContent = s; styleSelect.appendChild(o);
   });
   styleSelect.value = state.style;
   renderTacticOptions();
+  renderMobileStyleOptions();
+  renderMobileFormationOptions();
 }
 function renderTacticOptions() {
+  const tacticSelect = $("#tacticSelect");
   tacticSelect.innerHTML = "";
   TACTICS[state.style].forEach((t, i) => {
     const o = document.createElement("option");
@@ -1838,8 +2102,64 @@ function renderTacticOptions() {
   tacticSelect.value = state.tacticIndex;
 }
 
+/* ---- Mobile tab renderers ---- */
+function renderMobileStyleOptions() {
+  const el = $("#mobileStyleOptions");
+  if (!el) return;
+  el.innerHTML = "";
+  Object.keys(TACTICS).forEach(style => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "wiz-option" + (state.style === style ? " selected" : "");
+    btn.innerHTML = `
+      <div class="wo-title">${style}</div>
+      <div class="wo-sub">${STYLE_DESCRIPTIONS[style] || ""}</div>
+    `;
+    btn.onclick = () => {
+      state.style = style;
+      state.tacticIndex = 0;
+      renderMobileStyleOptions();
+      renderMobileFormationOptions();
+      const styleSelect = $("#styleSelect");
+      styleSelect.value = style;
+      renderTacticOptions();
+      loadPlayersFromTactic();
+    };
+    el.appendChild(btn);
+  });
+}
+
+function renderMobileFormationOptions() {
+  const el = $("#mobileFormationOptions");
+  if (!el) return;
+  el.innerHTML = "";
+  TACTICS[state.style].forEach((t, i) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "wiz-option" + (state.tacticIndex === i ? " selected" : "");
+    btn.innerHTML = `
+      <div class="wo-title">${t.name.split(" / ")[0]}</div>
+      <div class="wo-sub">OOP: ${t.name.split(" / ")[1] || t.oop}</div>
+    `;
+    btn.onclick = () => {
+      state.tacticIndex = i;
+      renderMobileFormationOptions();
+      const tacticSelect = $("#tacticSelect");
+      tacticSelect.value = i;
+      loadPlayersFromTactic();
+    };
+    el.appendChild(btn);
+  });
+  // Update phase buttons
+  const ip = $("#phaseIPMobile"), oop = $("#phaseOOPMobile");
+  if (ip && oop) {
+    ip.classList.toggle("active", state.phase === "IP");
+    oop.classList.toggle("active", state.phase === "OOP");
+  }
+}
+
 /* =========================================================
-   PLAYERS
+   PLAYERS + PITCH
    ========================================================= */
 function loadPlayersFromTactic() {
   const t = TACTICS[state.style][state.tacticIndex];
@@ -1853,81 +2173,77 @@ function loadPlayersFromTactic() {
 }
 
 function renderPitch() {
-  playersLayer.innerHTML = "";
-  state.players.forEach(p => {
-    const el = document.createElement("div");
-    el.className = "player" + (p.id === state.selectedId ? " selected" : "");
-    el.style.left = p.x + "%";
-    el.style.top  = p.y + "%";
-    el.dataset.id = p.id;
-    el.innerHTML = `
-      <div class="pos-badge">${p.label}</div>
-      <div class="role-label ${p.role ? "" : "empty"}">${p.role || "—"}</div>
-    `;
-    playersLayer.appendChild(el);
-    attachPointer(el, p);
-    el.addEventListener("click", e => {
-      if (el.dataset.dragged === "1") return;
-      selectPlayer(p.id);
+  // Render on both desktop and mobile pitches
+  const pitches = [
+    { el: document.querySelector("#pitch .players-layer") },
+    { el: document.querySelector("#mobilePitch .players-layer") }
+  ].filter(x => x.el);
+
+  pitches.forEach(({el}) => {
+    el.innerHTML = "";
+    state.players.forEach(p => {
+      const playerEl = document.createElement("div");
+      playerEl.className = "player" + (p.id === state.selectedId ? " selected" : "");
+      playerEl.style.left = p.x + "%";
+      playerEl.style.top  = p.y + "%";
+      playerEl.dataset.id = p.id;
+      playerEl.innerHTML = `
+        <div class="pos-badge">${p.label}</div>
+        <div class="role-label ${p.role ? "" : "empty"}">${p.role || "—"}</div>
+      `;
+      el.appendChild(playerEl);
+      attachPointer(playerEl, p);
+      playerEl.addEventListener("click", e => {
+        if (playerEl.dataset.dragged === "1") return;
+        selectPlayer(p.id);
+      });
     });
   });
-  // Adjust label widths AFTER layout is complete
+
+  // Adjust label widths after layout
   requestAnimationFrame(() => {
-    requestAnimationFrame(adjustLabelWidths);
+    requestAnimationFrame(() => {
+      adjustLabelWidths(document.querySelector("#pitch .players-layer"));
+      adjustLabelWidths(document.querySelector("#mobilePitch .players-layer"));
+    });
   });
 }
 
 /* =========================================================
-   LABEL WIDTH ADJUSTMENT
-   Detects when two labels would overlap horizontally and
-   shrinks their max-width until they no longer touch.
-   Uses iterative approach: try current widths, if overlap,
-   shrink both, repeat until stable.
+   LABEL WIDTH ADJUSTMENT (iterative shrink until no overlap)
    ========================================================= */
-function adjustLabelWidths() {
-  const players = Array.from(playersLayer.querySelectorAll(".player"));
+function adjustLabelWidths(layer) {
+  if (!layer) return;
+  const players = Array.from(layer.querySelectorAll(".player"));
   if (!players.length) return;
 
-  // Reset all label widths first
+  // Reset
   players.forEach(p => {
     const lbl = p.querySelector(".role-label");
-    if (lbl) {
-      lbl.style.maxWidth = "";
-    }
+    if (lbl) lbl.style.maxWidth = "";
   });
+  void layer.offsetWidth;
 
-  // Force reflow so widths recalc
-  void playersLayer.offsetWidth;
-
-  // Collect non-empty labels
   const items = [];
   players.forEach(p => {
     const lbl = p.querySelector(".role-label");
     if (!lbl || lbl.classList.contains("empty")) return;
     items.push({ playerEl: p, labelEl: lbl });
   });
-
   if (items.length === 0) return;
 
-  // Iterative shrinking: up to 8 passes
+  // Iterative shrink
   for (let pass = 0; pass < 8; pass++) {
-    // Get current rects
-    const rects = items.map(it => ({
-      ...it,
-      rect: it.labelEl.getBoundingClientRect()
-    }));
-
-    // Find all overlapping pairs
+    const rects = items.map(it => ({...it, rect: it.labelEl.getBoundingClientRect()}));
     let didShrink = false;
     for (let i = 0; i < rects.length; i++) {
       for (let j = i + 1; j < rects.length; j++) {
         const a = rects[i], b = rects[j];
         if (rectsOverlapWithBuffer(a.rect, b.rect, 2)) {
-          // Shrink both labels by 15% of their current max-width (min 60px)
           [a, b].forEach(item => {
             const cur = item.labelEl.getBoundingClientRect().width;
-            const newW = Math.max(60, Math.floor(cur * 0.85));
             const curMax = parseFloat(item.labelEl.style.maxWidth) || cur;
+            const newW = Math.max(60, Math.floor(cur * 0.85));
             const finalW = Math.max(60, Math.min(newW, curMax));
             item.labelEl.style.maxWidth = finalW + "px";
             didShrink = true;
@@ -1936,29 +2252,30 @@ function adjustLabelWidths() {
       }
     }
     if (!didShrink) break;
-    void playersLayer.offsetWidth;
+    void layer.offsetWidth;
   }
 }
-
 function rectsOverlapWithBuffer(a, b, buf) {
-  return !(a.right + buf < b.left ||
-           b.right + buf < a.left ||
-           a.bottom + buf < b.top ||
-           b.bottom + buf < a.top);
+  return !(a.right + buf < b.left || b.right + buf < a.left ||
+           a.bottom + buf < b.top || b.bottom + buf < a.top);
 }
 
 let resizeTimer;
 window.addEventListener("resize", () => {
   clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(adjustLabelWidths, 100);
+  resizeTimer = setTimeout(() => {
+    adjustLabelWidths(document.querySelector("#pitch .players-layer"));
+    adjustLabelWidths(document.querySelector("#mobilePitch .players-layer"));
+  }, 100);
 });
 
 /* =========================================================
-   POINTER HANDLING
+   POINTER HANDLING (unified)
    ========================================================= */
 function attachPointer(el, p) {
   let dragging = false, startX, startY, origX, origY, pointerId = null;
   let moveDist = 0;
+  let container = null;
 
   el.addEventListener("pointerdown", e => {
     if (e.button !== 0 && e.pointerType === "mouse") return;
@@ -1969,20 +2286,27 @@ function attachPointer(el, p) {
     el.classList.add("dragging");
     startX = e.clientX; startY = e.clientY;
     origX = p.x; origY = p.y;
+    container = el.closest(".pitch");
   });
 
   el.addEventListener("pointermove", e => {
     if (!dragging || e.pointerId !== pointerId) return;
-    const rect = pitch.getBoundingClientRect();
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
     const dx = (e.clientX - startX) / rect.width  * 100;
     const dy = (e.clientY - startY) / rect.height * 100;
     moveDist = Math.abs(dx) + Math.abs(dy);
     p.x = Math.max(4, Math.min(96, origX + dx));
     p.y = Math.max(4, Math.min(96, origY + dy));
-    el.style.left = p.x + "%";
-    el.style.top  = p.y + "%";
-    if (moveDist > 1.5) el.dataset.dragged = "1";
-    if (moveDist > 1.5) adjustLabelWidths();
+    // Update both desktop and mobile instances
+    document.querySelectorAll(`.player[data-id="${p.id}"]`).forEach(otherEl => {
+      otherEl.style.left = p.x + "%";
+      otherEl.style.top  = p.y + "%";
+    });
+    if (moveDist > 1.5) {
+      el.dataset.dragged = "1";
+      adjustLabelWidths(el.parentElement);
+    }
   });
 
   const endDrag = () => {
@@ -1991,7 +2315,7 @@ function attachPointer(el, p) {
     el.classList.remove("dragging");
     setTimeout(() => {
       el.dataset.dragged = "0";
-      adjustLabelWidths();
+      adjustLabelWidths(el.parentElement);
     }, 100);
   };
   el.addEventListener("pointerup", endDrag);
@@ -2017,12 +2341,8 @@ function selectPlayer(id) {
    ROLE MENU
    ========================================================= */
 let currentRoleMenu = null;
-
 function closeRoleMenu() {
-  if (currentRoleMenu) {
-    currentRoleMenu.remove();
-    currentRoleMenu = null;
-  }
+  if (currentRoleMenu) { currentRoleMenu.remove(); currentRoleMenu = null; }
 }
 
 function showRoleMenu(playerId) {
@@ -2054,10 +2374,16 @@ function showRoleMenu(playerId) {
   `;
 
   const isMobile = window.matchMedia("(max-width: 900px)").matches;
-  if (!isMobile) {
-    const el = playersLayer.querySelector(`.player[data-id="${playerId}"]`);
-    const pr = pitch.getBoundingClientRect();
-    const er = el.getBoundingClientRect();
+  // Reference the visible player element (mobile or desktop)
+  const refPlayerEl = (isMobile
+    ? document.querySelector(`#mobilePitch .player[data-id="${playerId}"]`)
+    : document.querySelector(`#pitch .player[data-id="${playerId}"]`))
+    || document.querySelector(`.player[data-id="${playerId}"]`);
+
+  if (!isMobile && refPlayerEl) {
+    const pitchEl = refPlayerEl.closest(".pitch");
+    const pr = pitchEl.getBoundingClientRect();
+    const er = refPlayerEl.getBoundingClientRect();
     const menuW = 300, menuH = 460;
     let left = er.right - pr.left + 14;
     let top  = er.top  - pr.top - 8;
@@ -2068,7 +2394,7 @@ function showRoleMenu(playerId) {
     if (top < 8) top = 8;
     menu.style.left = left + "px";
     menu.style.top  = top + "px";
-    pitch.appendChild(menu);
+    pitchEl.appendChild(menu);
   } else {
     document.body.appendChild(menu);
   }
@@ -2139,109 +2465,89 @@ function showRoleMenu(playerId) {
 }
 
 /* =========================================================
-   TEAM INSTRUCTIONS + SUMMARY
+   TEAM INSTRUCTIONS
    ========================================================= */
 function renderTeamPanel() {
-  const ment = $("#teamMent");
-  const ip = $("#teamIP"), it = $("#teamIT"), oop = $("#teamOOP");
-  ment.innerHTML = ""; ip.innerHTML = ""; it.innerHTML = ""; oop.innerHTML = "";
+  // Render both desktop and mobile versions
+  const targets = [
+    { ment: "#teamMent", ip: "#teamIP", it: "#teamIT", oop: "#teamOOP" },
+    { ment: "#mobileTeamMent", ip: "#mobileTeamIP", it: "#mobileTeamIT", oop: "#mobileTeamOOP" }
+  ];
 
-  const render = (target, phaseName, groupsData) => {
-    Object.entries(groupsData).forEach(([group, config]) => {
-      const isMulti = config.multi === true;
-      const opts = config.opts;
+  targets.forEach(tg => {
+    const ment = $(tg.ment); if (!ment) return;
+    const ip = $(tg.ip), it = $(tg.it), oop = $(tg.oop);
+    ment.innerHTML = ""; ip.innerHTML = ""; it.innerHTML = ""; oop.innerHTML = "";
 
-      const g = document.createElement("div");
-      g.className = "instr-group" + (isMulti ? " multi" : "");
-      g.innerHTML = `<label>${group}</label>`;
-      const wrap = document.createElement("div");
-      wrap.className = "opts";
-      opts.forEach(opt => {
-        const c = document.createElement("span");
-        c.className = "chip";
-        const key = phaseName + "|" + group;
-        const current = state.teamInstr[key];
-        if (isMulti) {
-          const arr = Array.isArray(current) ? current : [];
-          if (arr.includes(opt)) c.classList.add("active");
-        } else {
-          if (current === opt) c.classList.add("active");
-        }
-        c.textContent = opt;
-        c.onclick = () => {
+    const render = (target, phaseName, groupsData) => {
+      Object.entries(groupsData).forEach(([group, config]) => {
+        const isMulti = config.multi === true;
+        const opts = config.opts;
+        const g = document.createElement("div");
+        g.className = "instr-group" + (isMulti ? " multi" : "");
+        g.innerHTML = `<label>${group}</label>`;
+        const wrap = document.createElement("div");
+        wrap.className = "opts";
+        opts.forEach(opt => {
+          const c = document.createElement("span");
+          c.className = "chip";
+          const key = phaseName + "|" + group;
+          const current = state.teamInstr[key];
           if (isMulti) {
-            const arr = Array.isArray(state.teamInstr[key]) ? [...state.teamInstr[key]] : [];
-            const i = arr.indexOf(opt);
-            if (i >= 0) arr.splice(i, 1); else arr.push(opt);
-            if (arr.length) state.teamInstr[key] = arr;
-            else delete state.teamInstr[key];
+            const arr = Array.isArray(current) ? current : [];
+            if (arr.includes(opt)) c.classList.add("active");
           } else {
-            if (state.teamInstr[key] === opt) delete state.teamInstr[key];
-            else state.teamInstr[key] = opt;
+            if (current === opt) c.classList.add("active");
           }
-          renderTeamPanel();
-        };
-        wrap.appendChild(c);
+          c.textContent = opt;
+          c.onclick = () => {
+            if (isMulti) {
+              const arr = Array.isArray(state.teamInstr[key]) ? [...state.teamInstr[key]] : [];
+              const i = arr.indexOf(opt);
+              if (i >= 0) arr.splice(i, 1); else arr.push(opt);
+              if (arr.length) state.teamInstr[key] = arr;
+              else delete state.teamInstr[key];
+            } else {
+              if (state.teamInstr[key] === opt) delete state.teamInstr[key];
+              else state.teamInstr[key] = opt;
+            }
+            renderTeamPanel();
+          };
+          wrap.appendChild(c);
+        });
+        g.appendChild(wrap);
+        target.appendChild(g);
       });
-      g.appendChild(wrap);
-      target.appendChild(g);
-    });
-  };
+    };
 
-  render(ment, "Mentality", TEAM_INSTRUCTIONS["Mentality"].groups);
-  render(ip, "In Possession", TEAM_INSTRUCTIONS["In Possession"].groups);
-  render(it, "In Transition", TEAM_INSTRUCTIONS["In Transition"].groups);
-  render(oop, "Out of Possession", TEAM_INSTRUCTIONS["Out of Possession"].groups);
+    render(ment, "Mentality", TEAM_INSTRUCTIONS["Mentality"].groups);
+    render(ip, "In Possession", TEAM_INSTRUCTIONS["In Possession"].groups);
+    render(it, "In Transition", TEAM_INSTRUCTIONS["In Transition"].groups);
+    render(oop, "Out of Possession", TEAM_INSTRUCTIONS["Out of Possession"].groups);
+  });
 
   renderSummary();
 }
 
+/* =========================================================
+   SUMMARY
+   ========================================================= */
 function renderSummary() {
+  const html = buildSummaryHTML();
   const wrap = $("#summaryContent");
-  wrap.innerHTML = "";
-  let total = 0;
+  const mwrap = $("#mobileSummaryContent");
+  if (wrap) wrap.innerHTML = html;
+  if (mwrap) mwrap.innerHTML = html;
 
-  const buildSection = (label, items) => {
-    if (!items.length) return;
-    const sectionEl = document.createElement("div");
-    sectionEl.className = "summary-section";
-    const titleEl = document.createElement("div");
-    titleEl.className = "ss-title";
-    titleEl.innerHTML = `${label}<span class="ss-count">${items.length}</span>`;
-    sectionEl.appendChild(titleEl);
+  // Update mobile tab badge
+  const badge = $("#sumTabBadge");
+  const total = countSelected();
+  if (badge) badge.textContent = total;
+  const sumTotal = $("#sumTotal");
+  if (sumTotal) sumTotal.textContent = total;
 
-    const ul = document.createElement("ul");
-    ul.className = "summary-list";
-    items.forEach(item => {
-      const li = document.createElement("li");
-      li.className = "summary-item";
-      li.innerHTML = `
-        ${item.group ? `<span class="si-group">${escapeHtml(item.group)}</span>` : ""}
-        <span class="si-value">${escapeHtml(item.value)}</span>
-        <button class="si-remove" title="Remove" data-key="${escapeHtml(item.key)}" data-value="${escapeHtml(item.value)}">✕</button>
-      `;
-      ul.appendChild(li);
-    });
-    sectionEl.appendChild(ul);
-    wrap.appendChild(sectionEl);
-    total += items.length;
-  };
-
-  const mentVal = state.teamInstr["Mentality"];
-  const mentItems = mentVal ? [{ value: mentVal, key: "Mentality", group: null }] : [];
-  buildSection("Mentality", mentItems);
-
-  buildSection("In Possession", collectPhaseItems("In Possession"));
-  buildSection("In Transition", collectPhaseItems("In Transition"));
-  buildSection("Out of Possession", collectPhaseItems("Out of Possession"));
-
-  $("#sumTotal").textContent = total;
-
-  if (total === 0) {
-    wrap.innerHTML = `<div class="summary-empty">No instructions selected yet.<br>Click chips in the panel on the right to add them.</div>`;
-  }
-
-  wrap.querySelectorAll(".si-remove").forEach(btn => {
+  // Wire up remove buttons in both
+  document.querySelectorAll(".si-remove").forEach(btn => {
     btn.onclick = (e) => {
       e.stopPropagation();
       const key = btn.dataset.key;
@@ -2257,6 +2563,45 @@ function renderSummary() {
       renderTeamPanel();
     };
   });
+}
+
+function buildSummaryHTML() {
+  let html = "";
+  const buildSection = (label, items) => {
+    if (!items.length) return "";
+    let s = `<div class="summary-section">
+      <div class="ss-title">${label}<span class="ss-count">${items.length}</span></div>
+      <ul class="summary-list">`;
+    items.forEach(item => {
+      s += `<li class="summary-item">
+        ${item.group ? `<span class="si-group">${escapeHtml(item.group)}</span>` : ""}
+        <span class="si-value">${escapeHtml(item.value)}</span>
+        <button class="si-remove" title="Remove" data-key="${escapeHtml(item.key)}" data-value="${escapeHtml(item.value)}">✕</button>
+      </li>`;
+    });
+    s += `</ul></div>`;
+    return s;
+  };
+
+  const mentVal = state.teamInstr["Mentality"];
+  if (mentVal) html += buildSection("Mentality", [{ value: mentVal, key: "Mentality", group: null }]);
+  html += buildSection("In Possession", collectPhaseItems("In Possession"));
+  html += buildSection("In Transition", collectPhaseItems("In Transition"));
+  html += buildSection("Out of Possession", collectPhaseItems("Out of Possession"));
+
+  if (!html) {
+    html = `<div class="summary-empty">No instructions selected yet.<br>Click chips to add them.</div>`;
+  }
+  return html;
+}
+
+function countSelected() {
+  let n = 0;
+  if (state.teamInstr["Mentality"]) n++;
+  ["In Possession", "In Transition", "Out of Possession"].forEach(phase => {
+    n += collectPhaseItems(phase).length;
+  });
+  return n;
 }
 
 function collectPhaseItems(phase) {
@@ -2322,16 +2667,17 @@ function applyTactic(data) {
     state.players = getLayout(formationName).map(p => ({...p, role: null}));
   }
 
-  // Close wizard AND open app
   $("#wizard").classList.add("hidden");
   $("#app").classList.remove("hidden");
 
   initSelectors();
-  styleSelect.value = state.style;
+  $("#styleSelect").value = state.style;
   renderTacticOptions();
-  tacticSelect.value = state.tacticIndex;
+  $("#tacticSelect").value = state.tacticIndex;
   $("#phaseIP").classList.toggle("active", state.phase === "IP");
   $("#phaseOOP").classList.toggle("active", state.phase === "OOP");
+  renderMobileStyleOptions();
+  renderMobileFormationOptions();
   renderPitch();
   renderTeamPanel();
   closeRoleMenu();
@@ -2413,7 +2759,6 @@ function openSaveModal() {
   input.addEventListener("keydown", e => { if (e.key === "Enter") confirm(); });
 }
 
-/* Load modal. If `fromWizard` is true, choosing a save will directly start the app. */
 function openLoadModal(fromWizard = false) {
   const saves = getSaves();
   const backdrop = document.createElement("div");
@@ -2504,7 +2849,9 @@ function escapeHtml(s) {
 
 async function exportPNG() {
   try {
-    const svgEl = pitch.querySelector("svg");
+    // Use desktop pitch SVG
+    const svgEl = document.querySelector("#pitch svg");
+    if (!svgEl) { toast("Export failed", "error"); return; }
     const svgClone = svgEl.cloneNode(true);
     const cs = getComputedStyle(document.documentElement);
     const grass1 = cs.getPropertyValue('--grass-1').trim() || '#1c5730';
@@ -2628,16 +2975,40 @@ function toast(msg, type = "") {
 }
 
 /* =========================================================
+   MOBILE TABS
+   ========================================================= */
+function activateMobileTab(tab) {
+  state.mobileTab = tab;
+  document.querySelectorAll(".mobile-tab").forEach(b => {
+    b.classList.toggle("active", b.dataset.tab === tab);
+  });
+  document.querySelectorAll(".mobile-tab-content").forEach(c => {
+    c.classList.toggle("active", c.dataset.tab === tab);
+  });
+  // After switching to pitch tab, re-adjust label widths
+  if (tab === "pitch") {
+    setTimeout(() => adjustLabelWidths(document.querySelector("#mobilePitch .players-layer")), 80);
+  }
+}
+
+document.querySelectorAll(".mobile-tab").forEach(btn => {
+  btn.onclick = () => activateMobileTab(btn.dataset.tab);
+});
+
+/* =========================================================
    EVENTS
    ========================================================= */
-styleSelect.onchange = () => {
-  state.style = styleSelect.value;
+$("#styleSelect").onchange = () => {
+  state.style = $("#styleSelect").value;
   state.tacticIndex = 0;
   renderTacticOptions();
+  renderMobileStyleOptions();
+  renderMobileFormationOptions();
   loadPlayersFromTactic();
 };
-tacticSelect.onchange = () => {
-  state.tacticIndex = +tacticSelect.value;
+$("#tacticSelect").onchange = () => {
+  state.tacticIndex = +$("#tacticSelect").value;
+  renderMobileFormationOptions();
   loadPlayersFromTactic();
 };
 $("#phaseIP").onclick = () => {
@@ -2652,8 +3023,29 @@ $("#phaseOOP").onclick = () => {
   $("#phaseIP").classList.remove("active");
   loadPlayersFromTactic();
 };
+
+/* Mobile phase buttons */
+document.addEventListener("click", e => {
+  if (e.target.id === "phaseIPMobile" || e.target.closest("#phaseIPMobile")) {
+    state.phase = "IP";
+    $("#phaseIPMobile").classList.add("active");
+    $("#phaseOOPMobile").classList.remove("active");
+    $("#phaseIP").classList.add("active");
+    $("#phaseOOP").classList.remove("active");
+    loadPlayersFromTactic();
+  }
+  if (e.target.id === "phaseOOPMobile" || e.target.closest("#phaseOOPMobile")) {
+    state.phase = "OOP";
+    $("#phaseOOPMobile").classList.add("active");
+    $("#phaseIPMobile").classList.remove("active");
+    $("#phaseOOP").classList.add("active");
+    $("#phaseIP").classList.remove("active");
+    loadPlayersFromTactic();
+  }
+});
+
 $("#btnNew").onclick = newTactic;
-$("#btnSave").onclick = () => openSaveModal();
+$("#btnSave").onclick = openSaveModal;
 $("#btnLoad").onclick = () => openLoadModal(false);
 $("#btnExport").onclick = exportPNG;
 
@@ -2676,10 +3068,21 @@ document.addEventListener("keydown", e => {
 document.addEventListener("dblclick", e => { e.preventDefault(); }, { passive: false });
 
 /* =========================================================
+   INIT: inject pitch SVG into both containers
+   ========================================================= */
+function injectPitches() {
+  const desktop = document.querySelector("#pitch");
+  const mobile = document.querySelector("#mobilePitch");
+  if (desktop) desktop.innerHTML = getPitchSVGString();
+  if (mobile) mobile.innerHTML = getPitchSVGString();
+}
+
+/* =========================================================
    START
    ========================================================= */
 loadSettings();
 applyTheme();
+injectPitches();
 renderWizardStyles();
 updateWizardUI();
 </script>

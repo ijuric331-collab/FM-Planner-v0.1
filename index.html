@@ -282,7 +282,7 @@
   .btn-lg:disabled { opacity: .4; cursor: not-allowed; }
 
   /* =========================================================
-     APP — desktop layout
+     APP
      ========================================================= */
   .app {
     display: grid;
@@ -692,7 +692,7 @@
   }
 
   /* =========================================================
-     SUMMARY PANEL (middle)
+     SUMMARY PANEL
      ========================================================= */
   .summary-panel {
     background: var(--panel);
@@ -830,7 +830,7 @@
   }
 
   /* =========================================================
-     INSTRUCTIONS PANEL (right)
+     INSTRUCTIONS PANEL
      ========================================================= */
   aside.panel {
     background: var(--panel);
@@ -862,14 +862,11 @@
   }
 
   /* =========================================================
-     MOBILE TABS
+     MOBILE TABS (hidden on desktop via media query)
      ========================================================= */
-  .mobile-tabs {
-    display: none;
-  }
-  .mobile-tab-content {
-    display: none;
-  }
+  .mobile-tabs { display: none; }
+  .mobile-content { display: none; }
+  .mobile-tab-content { display: none; }
 
   /* =========================================================
      MODAL
@@ -984,283 +981,349 @@
   .toast.error { border-color: var(--red); }
 
   /* =========================================================
-     DESKTOP-ONLY: hide mobile tabs
+     DESKTOP (≥901px): FORCE 3-column layout, hide mobile stuff
      ========================================================= */
   @media (min-width: 901px) {
     .mobile-tabs { display: none !important; }
+    .mobile-content { display: none !important; }
     .mobile-tab-content { display: none !important; }
-    /* Desktop grid shows summary + instructions normally */
-    .app .summary-panel,
-    .app aside.panel { display: flex; }
-    .app .pitch-wrap { display: flex; }
+
+    .app {
+      display: grid !important;
+      grid-template-columns: 1fr 260px 320px !important;
+      grid-template-rows: 60px 1fr !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      width: 100% !important;
+      padding: 0 !important;
+      flex-direction: unset !important;
+    }
+
+    header {
+      grid-column: 1 / 4 !important;
+      grid-row: 1 / 2 !important;
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      padding: 0 16px !important;
+      gap: 10px !important;
+    }
+    .header-controls { display: flex !important; }
+    .header-actions {
+      margin-left: auto !important;
+      flex-wrap: nowrap !important;
+      gap: 6px !important;
+    }
+    .header-actions .btn {
+      padding: 8px 12px !important;
+      font-size: 12px !important;
+      min-height: auto !important;
+      min-width: auto !important;
+      justify-content: flex-start !important;
+    }
+    .header-actions .btn .btn-label { display: inline !important; }
+    .header-actions .btn.icon { padding: 8px 10px !important; }
+    .logo { font-size: 15px !important; padding-right: 10px !important; border-right: 1px solid var(--border) !important; margin-right: 4px !important; }
+    .logo::before { font-size: 17px !important; }
+    .logo-text { display: inline !important; }
+
+    .pitch-wrap {
+      display: flex !important;
+      grid-column: 1 / 2 !important;
+      grid-row: 2 / 3 !important;
+      padding: 20px !important;
+      background:
+        radial-gradient(circle at 50% 40%, var(--accent-glow) 0%, transparent 55%),
+        var(--bg-2) !important;
+      align-items: center !important;
+      justify-content: center !important;
+      overflow: hidden !important;
+    }
+    .pitch-wrap .pitch {
+      height: 100% !important;
+      max-height: 100% !important;
+      max-width: 100% !important;
+      width: auto !important;
+      aspect-ratio: 68 / 105 !important;
+    }
+    .pitch-wrap .player .pos-badge {
+      width: 54px !important;
+      height: 54px !important;
+      font-size: 13px !important;
+      border-width: 2.5px !important;
+    }
+    .pitch-wrap .player .role-label {
+      font-size: 10.5px !important;
+      padding: 5px 10px !important;
+      max-width: 130px !important;
+    }
+
+    .summary-panel {
+      display: flex !important;
+      flex-direction: column !important;
+      grid-column: 2 / 3 !important;
+      grid-row: 2 / 3 !important;
+      border-left: 1px solid var(--border) !important;
+      border-right: 1px solid var(--border) !important;
+      background: var(--panel) !important;
+      overflow: hidden !important;
+    }
+    .summary-panel .sum-body {
+      flex: 1 !important;
+      overflow-y: auto !important;
+      padding: 10px !important;
+      display: block !important;
+    }
+
+    aside.panel {
+      display: block !important;
+      grid-column: 3 / 4 !important;
+      grid-row: 2 / 3 !important;
+      background: var(--panel) !important;
+      border-left: 1px solid var(--border) !important;
+      overflow-y: auto !important;
+      padding: 16px !important;
+    }
+
+    .phase-toggle { display: flex !important; }
+    select.native { max-width: 210px !important; min-width: 130px !important; padding: 8px 10px !important; }
   }
 
   /* =========================================================
-     MOBILE — TAB LAYOUT
+     MOBILE (≤900px): tab layout
      ========================================================= */
   @media (max-width: 900px) {
-    /* App becomes flex column: header → tab bar → content */
     .app {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      height: 100dvh;
-      width: 100%;
-      padding-top: env(safe-area-inset-top, 0px);
+      display: flex !important;
+      flex-direction: column !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      width: 100% !important;
+      padding-top: env(safe-area-inset-top, 0px) !important;
     }
 
-    /* Compact header: only logo + action buttons */
     header {
-      flex: 0 0 auto;
-      padding: 8px 10px;
-      gap: 6px;
-      flex-wrap: wrap;
-      border-bottom: 1px solid var(--border);
+      flex: 0 0 auto !important;
+      padding: 8px 10px !important;
+      gap: 6px !important;
+      flex-wrap: wrap !important;
+      border-bottom: 1px solid var(--border) !important;
     }
-    .logo { font-size: 14px; padding-right: 6px; margin-right: 0; border-right: none; }
-    .logo::before { font-size: 15px; }
-    .logo-text { display: none; }
-    .header-controls { display: none; }  /* Style/Formation move to tabs */
+    .logo { font-size: 14px !important; padding-right: 6px !important; margin-right: 0 !important; border-right: none !important; }
+    .logo::before { font-size: 15px !important; }
+    .logo-text { display: none !important; }
+    .header-controls { display: none !important; }
     .header-actions {
-      margin-left: auto;
-      display: flex;
-      gap: 4px;
-      flex-wrap: wrap;
+      margin-left: auto !important;
+      display: flex !important;
+      gap: 4px !important;
+      flex-wrap: wrap !important;
     }
     .header-actions .btn {
-      padding: 7px 9px;
-      font-size: 11px;
-      min-height: 34px;
-      min-width: 34px;
-      justify-content: center;
+      padding: 7px 9px !important;
+      font-size: 11px !important;
+      min-height: 34px !important;
+      min-width: 34px !important;
+      justify-content: center !important;
     }
-    .header-actions .btn .btn-label { display: none; }
-    .header-actions .btn.icon { padding: 7px 9px; }
+    .header-actions .btn .btn-label { display: none !important; }
+    .header-actions .btn.icon { padding: 7px 9px !important; }
 
-    /* Mobile tab bar */
     .mobile-tabs {
-      display: flex;
-      flex: 0 0 auto;
-      background: var(--panel);
-      border-bottom: 1px solid var(--border);
-      overflow-x: auto;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-      padding: 6px 8px;
-      gap: 5px;
-      position: sticky;
-      top: 0;
-      z-index: 30;
+      display: flex !important;
+      flex: 0 0 auto !important;
+      background: var(--panel) !important;
+      border-bottom: 1px solid var(--border) !important;
+      overflow-x: auto !important;
+      scrollbar-width: none !important;
+      -webkit-overflow-scrolling: touch !important;
+      padding: 6px 8px !important;
+      gap: 5px !important;
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 30 !important;
     }
-    .mobile-tabs::-webkit-scrollbar { display: none; }
+    .mobile-tabs::-webkit-scrollbar { display: none !important; }
     .mobile-tab {
-      flex: 0 0 auto;
-      background: var(--panel-2);
-      border: 1px solid var(--border-2);
-      color: var(--text-dim);
-      padding: 8px 12px;
-      border-radius: 9px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: inherit;
-      white-space: nowrap;
-      transition: all .15s;
-      min-height: 36px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
+      flex: 0 0 auto !important;
+      background: var(--panel-2) !important;
+      border: 1px solid var(--border-2) !important;
+      color: var(--text-dim) !important;
+      padding: 8px 12px !important;
+      border-radius: 9px !important;
+      font-size: 12px !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+      font-family: inherit !important;
+      white-space: nowrap !important;
+      transition: all .15s !important;
+      min-height: 36px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 5px !important;
     }
     .mobile-tab.active {
-      background: var(--role-grad);
-      border-color: transparent;
-      color: white;
-      box-shadow: 0 3px 10px var(--accent-glow);
+      background: var(--role-grad) !important;
+      border-color: transparent !important;
+      color: white !important;
+      box-shadow: 0 3px 10px var(--accent-glow) !important;
     }
     .mobile-tab .tab-badge {
-      background: rgba(255,255,255,.25);
-      color: white;
-      font-size: 9px;
-      padding: 1px 5px;
-      border-radius: 5px;
-      font-weight: 900;
+      background: rgba(255,255,255,.25) !important;
+      color: white !important;
+      font-size: 9px !important;
+      padding: 1px 5px !important;
+      border-radius: 5px !important;
+      font-weight: 900 !important;
     }
     .mobile-tab:not(.active) .tab-badge {
-      background: var(--accent);
-      color: white;
+      background: var(--accent) !important;
+      color: white !important;
     }
 
-    /* Hide desktop panels */
     .app .summary-panel,
     .app aside.panel,
-    .app .pitch-wrap {
-      display: none !important;
-    }
+    .app .pitch-wrap { display: none !important; }
 
-    /* Show mobile content wrapper */
     .mobile-content {
       display: flex !important;
-      flex: 1 1 auto;
-      overflow: hidden;
-      position: relative;
+      flex: 1 1 auto !important;
+      overflow: hidden !important;
+      position: relative !important;
     }
     .mobile-tab-content {
-      display: none;
-      flex: 1 1 auto;
-      overflow-y: auto;
-      padding: 12px;
-      -webkit-overflow-scrolling: touch;
+      display: none !important;
+      flex: 1 1 auto !important;
+      overflow-y: auto !important;
+      padding: 12px !important;
+      -webkit-overflow-scrolling: touch !important;
     }
-    .mobile-tab-content.active {
-      display: block;
-    }
+    .mobile-tab-content.active { display: block !important; }
 
-    /* Tab: Pitch */
     .mobile-tab-content[data-tab="pitch"] {
-      padding: 8px;
-      display: none;
-      align-items: center;
-      justify-content: center;
+      padding: 8px !important;
+      display: none !important;
+      align-items: center !important;
+      justify-content: center !important;
       background:
         radial-gradient(circle at 50% 40%, var(--accent-glow) 0%, transparent 55%),
-        var(--bg-2);
+        var(--bg-2) !important;
     }
-    .mobile-tab-content[data-tab="pitch"].active {
-      display: flex;
-    }
+    .mobile-tab-content[data-tab="pitch"].active { display: flex !important; }
     .mobile-tab-content[data-tab="pitch"] .pitch {
-      height: 100%;
-      max-height: 100%;
-      max-width: 100%;
-      width: auto;
-      aspect-ratio: 68 / 105;
+      height: 100% !important;
+      max-height: 100% !important;
+      max-width: 100% !important;
+      width: auto !important;
+      aspect-ratio: 68 / 105 !important;
     }
-
-    /* Bigger player tokens on mobile pitch */
     .mobile-tab-content[data-tab="pitch"] .player .pos-badge {
-      width: 44px;
-      height: 44px;
-      font-size: 11px;
-      border-width: 2.5px;
+      width: 44px !important;
+      height: 44px !important;
+      font-size: 11px !important;
+      border-width: 2.5px !important;
     }
     .mobile-tab-content[data-tab="pitch"] .player .role-label {
-      font-size: 9.5px;
-      padding: 3px 7px;
-      max-width: 100px;
+      font-size: 9.5px !important;
+      padding: 3px 7px !important;
+      max-width: 100px !important;
     }
 
-    /* Tab: Style */
     .mobile-tab-content[data-tab="style"] .wizard-options,
     .mobile-tab-content[data-tab="formation"] .wizard-options {
-      grid-template-columns: 1fr;
-      max-height: none;
-      margin-bottom: 0;
+      grid-template-columns: 1fr !important;
+      max-height: none !important;
+      margin-bottom: 0 !important;
     }
 
-    /* Tab: Instructions — sections */
     .mobile-tab-content[data-tab="instructions"] .section-title {
-      margin: 14px 0 8px;
-      font-size: 11px;
+      margin: 14px 0 8px !important;
+      font-size: 11px !important;
     }
     .mobile-tab-content[data-tab="instructions"] .chip {
-      padding: 9px 12px;
-      font-size: 12px;
-      min-height: 38px;
+      padding: 9px 12px !important;
+      font-size: 12px !important;
+      min-height: 38px !important;
     }
 
-    /* Tab: Summary */
     .mobile-tab-content[data-tab="summary"] .summary-section {
-      margin-bottom: 10px;
+      margin-bottom: 10px !important;
     }
-    .mobile-tab-content[data-tab="summary"] .summary-item {
-      font-size: 12px;
-    }
-    .mobile-tab-content[data-tab="summary"] .si-value { font-size: 12px; }
+    .mobile-tab-content[data-tab="summary"] .summary-item { font-size: 12px !important; }
+    .mobile-tab-content[data-tab="summary"] .si-value { font-size: 12px !important; }
 
-    /* Tab: Theme */
     .mobile-tab-content[data-tab="theme"] .theme-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
-      margin-top: 12px;
+      display: grid !important;
+      grid-template-columns: 1fr 1fr 1fr !important;
+      gap: 8px !important;
+      margin-top: 12px !important;
     }
     .theme-btn {
-      background: var(--panel-2);
-      border: 2px solid var(--border-2);
-      border-radius: 12px;
-      padding: 16px 12px;
-      cursor: pointer;
-      font-family: inherit;
-      color: var(--text);
-      transition: all .15s;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      min-height: 80px;
-      justify-content: center;
+      background: var(--panel-2) !important;
+      border: 2px solid var(--border-2) !important;
+      border-radius: 12px !important;
+      padding: 16px 12px !important;
+      cursor: pointer !important;
+      font-family: inherit !important;
+      color: var(--text) !important;
+      transition: all .15s !important;
+      text-align: center !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      gap: 6px !important;
+      min-height: 80px !important;
+      justify-content: center !important;
     }
     .theme-btn.selected {
-      border-color: var(--accent);
-      background: rgba(59,130,246,.15);
-      box-shadow: 0 0 0 3px var(--accent-glow);
+      border-color: var(--accent) !important;
+      background: rgba(59,130,246,.15) !important;
+      box-shadow: 0 0 0 3px var(--accent-glow) !important;
     }
-    .theme-btn .tb-icon { font-size: 22px; }
-    .theme-btn .tb-label { font-size: 12px; font-weight: 800; }
+    .theme-btn .tb-icon { font-size: 22px !important; }
+    .theme-btn .tb-label { font-size: 12px !important; font-weight: 800 !important; }
 
-    /* Role menu — bottom sheet on mobile */
+    /* Role menu bottom sheet */
     .role-menu {
-      position: fixed;
-      left: 10px; right: 10px;
-      bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+      position: fixed !important;
+      left: 10px !important; right: 10px !important;
+      bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
       top: auto !important;
-      width: auto;
-      max-width: none;
-      max-height: 78vh;
-      border-radius: 20px;
-      animation: sheetUp .25s cubic-bezier(.2,.9,.3,1.2);
+      width: auto !important;
+      max-width: none !important;
+      max-height: 78vh !important;
+      border-radius: 20px !important;
+      animation: sheetUp .25s cubic-bezier(.2,.9,.3,1.2) !important;
     }
     @keyframes sheetUp {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .role-menu-header { padding: 18px 16px 12px; }
-    .role-list { max-height: none; padding: 8px 10px 14px; }
-    .role-option { padding: 14px 15px; font-size: 14px; min-height: 48px; }
-    .pi-tab-content { max-height: none; padding: 14px 16px 20px; }
+    .role-menu-header { padding: 18px 16px 12px !important; }
+    .role-list { max-height: none !important; padding: 8px 10px 14px !important; }
+    .role-option { padding: 14px 15px !important; font-size: 14px !important; min-height: 48px !important; }
+    .pi-tab-content { max-height: none !important; padding: 14px 16px 20px !important; }
 
-    /* Wizard: full width on mobile */
-    .wizard { padding: 12px; }
-    .wizard-card { padding: 20px 16px; border-radius: 16px; }
-    .wizard-header .logo { font-size: 22px; }
-    .wizard-header .logo::before { font-size: 24px; }
-    .wizard-options { grid-template-columns: 1fr; max-height: 60vh; }
-    .btn-lg { padding: 12px 18px; font-size: 13.5px; }
-    .wiz-load-btn { padding: 9px 12px; font-size: 12px; }
+    /* Wizard full width */
+    .wizard { padding: 12px !important; }
+    .wizard-card { padding: 20px 16px !important; border-radius: 16px !important; }
+    .wizard-header .logo { font-size: 22px !important; }
+    .wizard-header .logo::before { font-size: 24px !important; }
+    .wizard-options { grid-template-columns: 1fr !important; max-height: 60vh !important; }
+    .btn-lg { padding: 12px 18px !important; font-size: 13.5px !important; }
+    .wiz-load-btn { padding: 9px 12px !important; font-size: 12px !important; }
 
-    /* Modal — full width */
-    .modal { width: 100%; border-radius: 16px; }
-    .modal .m-header { padding: 14px 16px; }
-    .modal .m-body { padding: 16px; }
-    .modal .m-actions { padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px)); }
+    /* Modal full width */
+    .modal { width: 100% !important; border-radius: 16px !important; }
+    .modal .m-header { padding: 14px 16px !important; }
+    .modal .m-body { padding: 16px !important; }
+    .modal .m-actions { padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px)) !important; }
   }
 
-  /* Small mobile — hide labels, icon-only buttons */
   @media (max-width: 500px) {
-    .header-actions .btn { padding: 6px 8px; font-size: 10.5px; min-height: 32px; min-width: 32px; }
-    .mobile-tab { padding: 7px 10px; font-size: 11px; }
-    .mobile-tab-content[data-tab="pitch"] .player .pos-badge { width: 40px; height: 40px; font-size: 10px; }
-    .mobile-tab-content[data-tab="pitch"] .player .role-label { font-size: 9px; padding: 3px 6px; max-width: 90px; }
-  }
-
-  /* Desktop: hide mobile content wrapper */
-  @media (min-width: 901px) {
-    .mobile-content { display: none !important; }
-  }
-
-  @media (min-width: 641px) and (max-width: 900px) {
-    .phase-toggle button .pt-short { display: inline; }
+    .header-actions .btn { padding: 6px 8px !important; font-size: 10.5px !important; min-height: 32px !important; min-width: 32px !important; }
+    .mobile-tab { padding: 7px 10px !important; font-size: 11px !important; }
+    .mobile-tab-content[data-tab="pitch"] .player .pos-badge { width: 40px !important; height: 40px !important; font-size: 10px !important; }
+    .mobile-tab-content[data-tab="pitch"] .player .role-label { font-size: 9px !important; padding: 3px 6px !important; max-width: 90px !important; }
   }
 
   .hidden { display: none !important; }
@@ -1268,9 +1331,7 @@
 </head>
 <body>
 
-<!-- ============================================================
-     WIZARD
-     ============================================================ -->
+<!-- WIZARD -->
 <div class="wizard" id="wizard">
   <div class="wizard-card">
     <div class="wizard-header">
@@ -1319,9 +1380,7 @@
   </div>
 </div>
 
-<!-- ============================================================
-     MAIN APP
-     ============================================================ -->
+<!-- MAIN APP -->
 <div class="app hidden" id="app">
 
   <header>
@@ -1360,31 +1419,25 @@
   <!-- MOBILE CONTENT -->
   <div class="mobile-content">
 
-    <!-- Tab: Pitch -->
     <div class="mobile-tab-content active" data-tab="pitch">
-      <div class="pitch" id="mobilePitch">
-        <!-- SVG pitch injected by JS -->
-      </div>
+      <div class="pitch" id="mobilePitch"></div>
     </div>
 
-    <!-- Tab: Style -->
     <div class="mobile-tab-content" data-tab="style">
       <div class="section-title" style="margin-top:0;">Playing Style</div>
       <div class="wizard-options" id="mobileStyleOptions" style="margin-bottom:0;"></div>
     </div>
 
-    <!-- Tab: Formation -->
     <div class="mobile-tab-content" data-tab="formation">
       <div class="section-title" style="margin-top:0;">Formation</div>
       <div class="wizard-options" id="mobileFormationOptions" style="margin-bottom:0;"></div>
       <div class="section-title">Phase</div>
-      <div class="phase-toggle" style="margin-top:4px;">
+      <div class="phase-toggle" style="margin-top:4px;width:100%;">
         <button id="phaseIPMobile" class="active" style="flex:1;padding:12px 14px;font-size:12.5px;">In Possession</button>
         <button id="phaseOOPMobile" style="flex:1;padding:12px 14px;font-size:12.5px;">Out of Possession</button>
       </div>
     </div>
 
-    <!-- Tab: Instructions -->
     <div class="mobile-tab-content" data-tab="instructions">
       <div class="section-title" style="margin-top:0;">Mentality</div>
       <div id="mobileTeamMent"></div>
@@ -1396,13 +1449,11 @@
       <div id="mobileTeamOOP"></div>
     </div>
 
-    <!-- Tab: Summary -->
     <div class="mobile-tab-content" data-tab="summary">
       <div class="section-title" style="margin-top:0;">Selected Instructions</div>
       <div id="mobileSummaryContent"></div>
     </div>
 
-    <!-- Tab: Theme -->
     <div class="mobile-tab-content" data-tab="theme">
       <div class="section-title" style="margin-top:0;">Appearance</div>
       <div class="theme-grid">
@@ -1421,7 +1472,7 @@
       </div>
       <div class="section-title" style="margin-top:22px;">Info</div>
       <div style="background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--text-dim);line-height:1.6;">
-        <b style="color:var(--text);">FM26 Planner v12</b><br>
+        <b style="color:var(--text);">FM26 Planner v13</b><br>
         Design tactics, pick roles and instructions. Drag players to reposition. Save, load and export.
       </div>
     </div>
@@ -1430,9 +1481,7 @@
 
   <!-- DESKTOP COLUMNS -->
   <main class="pitch-wrap">
-    <div class="pitch" id="pitch">
-      <!-- SVG injected -->
-    </div>
+    <div class="pitch" id="pitch"></div>
   </main>
 
   <div class="summary-panel">
@@ -1875,41 +1924,47 @@ const STYLE_DESCRIPTIONS = {
 };
 
 /* =========================================================
-   PITCH SVG (shared)
+   PITCH SVG (with inline colors — works on file://)
    ========================================================= */
+let pitchIdCounter = 0;
 function getPitchSVGString() {
+  const isLight = document.documentElement.getAttribute("data-theme") === "light";
+  const grass1 = isLight ? "#3a9e57" : "#1c5730";
+  const grass2 = isLight ? "#349153" : "#175029";
+  const lineCol = isLight ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.82)";
+  const id = "pitch-" + (++pitchIdCounter);
   return `
       <svg viewBox="0 0 680 1050" preserveAspectRatio="xMidYMid meet">
         <defs>
-          <pattern id="stripes" width="680" height="75" patternUnits="userSpaceOnUse">
-            <rect width="680" height="75" fill="var(--grass-1)"/>
-            <rect y="37.5" width="680" height="37.5" fill="var(--grass-2)"/>
+          <pattern id="stripes-${id}" width="680" height="75" patternUnits="userSpaceOnUse">
+            <rect width="680" height="75" fill="${grass1}"/>
+            <rect y="37.5" width="680" height="37.5" fill="${grass2}"/>
           </pattern>
-          <radialGradient id="vignette" cx="50%" cy="50%" r="75%">
+          <radialGradient id="vignette-${id}" cx="50%" cy="50%" r="75%">
             <stop offset="55%" stop-color="rgba(0,0,0,0)"/>
-            <stop offset="100%" stop-color="rgba(0,0,0,.28)"/>
+            <stop offset="100%" stop-color="rgba(0,0,0,${isLight ? ".08" : ".28"})"/>
           </radialGradient>
         </defs>
-        <rect x="0" y="0" width="680" height="1050" fill="url(#stripes)"/>
-        <rect x="0" y="0" width="680" height="1050" fill="url(#vignette)"/>
-        <rect x="20" y="20" width="640" height="1010" fill="none" stroke="var(--line)" stroke-width="2.5"/>
-        <line x1="20" y1="525" x2="660" y2="525" stroke="var(--line)" stroke-width="2"/>
-        <circle cx="340" cy="525" r="80" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <circle cx="340" cy="525" r="3.5" fill="var(--line)"/>
-        <rect x="130" y="20" width="420" height="160" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <rect x="225" y="20" width="230" height="55" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <circle cx="340" cy="125" r="3" fill="var(--line)"/>
-        <path d="M 253 180 A 88 88 0 0 0 427 180" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <rect x="295" y="8" width="90" height="12" fill="none" stroke="var(--line)" stroke-width="2.5"/>
-        <rect x="130" y="870" width="420" height="160" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <rect x="225" y="975" width="230" height="55" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <circle cx="340" cy="925" r="3" fill="var(--line)"/>
-        <path d="M 253 870 A 88 88 0 0 1 427 870" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <rect x="295" y="1030" width="90" height="12" fill="none" stroke="var(--line)" stroke-width="2.5"/>
-        <path d="M 20 40 A 20 20 0 0 1 40 20" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <path d="M 640 20 A 20 20 0 0 1 660 40" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <path d="M 20 1010 A 20 20 0 0 0 40 1030" fill="none" stroke="var(--line)" stroke-width="2"/>
-        <path d="M 640 1030 A 20 20 0 0 0 660 1010" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <rect x="0" y="0" width="680" height="1050" fill="url(#stripes-${id})"/>
+        <rect x="0" y="0" width="680" height="1050" fill="url(#vignette-${id})"/>
+        <rect x="20" y="20" width="640" height="1010" fill="none" stroke="${lineCol}" stroke-width="2.5"/>
+        <line x1="20" y1="525" x2="660" y2="525" stroke="${lineCol}" stroke-width="2"/>
+        <circle cx="340" cy="525" r="80" fill="none" stroke="${lineCol}" stroke-width="2"/>
+        <circle cx="340" cy="525" r="3.5" fill="${lineCol}"/>
+        <rect x="130" y="20" width="420" height="160" fill="none" stroke="${lineCol}" stroke-width="2"/>
+        <rect x="225" y="20" width="230" height="55" fill="none" stroke="${lineCol}" stroke-width="2"/>
+        <circle cx="340" cy="125" r="3" fill="${lineCol}"/>
+        <path d="M 253 180 A 88 88 0 0 0 427 180" fill="none" stroke="${lineCol}" stroke-width="2"/>
+        <rect x="295" y="8" width="90" height="12" fill="none" stroke="${lineCol}" stroke-width="2.5"/>
+        <rect x="130" y="870" width="420" height="160" fill="none" stroke="${lineCol}" stroke-width="2"/>
+        <rect x="225" y="975" width="230" height="55" fill="none" stroke="${lineCol}" stroke-width="2"/>
+        <circle cx="340" cy="925" r="3" fill="${lineCol}"/>
+        <path d="M 253 870 A 88 88 0 0 1 427 870" fill="none" stroke="${lineCol}" stroke-width="2"/>
+        <rect x="295" y="1030" width="90" height="12" fill="none" stroke="${lineCol}" stroke-width="2.5"/>
+        <path d="M 20 40 A 20 20 0 0 1 40 20" fill="none" stroke="${lineCol}" stroke-width="2"/>
+        <path d="M 640 20 A 20 20 0 0 1 660 40" fill="none" stroke="${lineCol}" stroke-width="2"/>
+        <path d="M 20 1010 A 20 20 0 0 0 40 1030" fill="none" stroke="${lineCol}" stroke-width="2"/>
+        <path d="M 640 1030 A 20 20 0 0 0 660 1010" fill="none" stroke="${lineCol}" stroke-width="2"/>
       </svg>
       <div class="players-layer"></div>
   `;
@@ -1933,10 +1988,6 @@ const state = {
 
 const $ = s => document.querySelector(s);
 
-/* References to desktop and mobile pitches */
-let desktopPitch, mobilePitch;
-let desktopPlayersLayer, mobilePlayersLayer;
-
 /* =========================================================
    THEME
    ========================================================= */
@@ -1951,12 +2002,16 @@ function applyTheme() {
   const btn = $("#btnTheme");
   const icons = { auto: "🌗", dark: "🌙", light: "☀️" };
   if (btn) { btn.textContent = icons[state.theme]; btn.title = `Theme: ${state.theme}`; }
-  // Update mobile theme grid
   document.querySelectorAll(".theme-btn").forEach(b => {
     b.classList.toggle("selected", b.dataset.themeVal === state.theme);
   });
-  // Recompute label widths after theme swap
-  setTimeout(() => { adjustLabelWidths(desktopPlayersLayer); adjustLabelWidths(mobilePlayersLayer); }, 50);
+  // Re-inject pitches so inline colors update with theme
+  if (state.players.length) {
+    setTimeout(() => {
+      injectPitches();
+      renderPitch();
+    }, 20);
+  }
 }
 function cycleTheme() {
   const order = ["auto", "dark", "light"];
@@ -2150,7 +2205,6 @@ function renderMobileFormationOptions() {
     };
     el.appendChild(btn);
   });
-  // Update phase buttons
   const ip = $("#phaseIPMobile"), oop = $("#phaseOOPMobile");
   if (ip && oop) {
     ip.classList.toggle("active", state.phase === "IP");
@@ -2173,13 +2227,12 @@ function loadPlayersFromTactic() {
 }
 
 function renderPitch() {
-  // Render on both desktop and mobile pitches
-  const pitches = [
-    { el: document.querySelector("#pitch .players-layer") },
-    { el: document.querySelector("#mobilePitch .players-layer") }
-  ].filter(x => x.el);
+  const layers = [
+    document.querySelector("#pitch .players-layer"),
+    document.querySelector("#mobilePitch .players-layer")
+  ].filter(Boolean);
 
-  pitches.forEach(({el}) => {
+  layers.forEach(el => {
     el.innerHTML = "";
     state.players.forEach(p => {
       const playerEl = document.createElement("div");
@@ -2200,7 +2253,6 @@ function renderPitch() {
     });
   });
 
-  // Adjust label widths after layout
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       adjustLabelWidths(document.querySelector("#pitch .players-layer"));
@@ -2210,14 +2262,13 @@ function renderPitch() {
 }
 
 /* =========================================================
-   LABEL WIDTH ADJUSTMENT (iterative shrink until no overlap)
+   LABEL WIDTH ADJUSTMENT
    ========================================================= */
 function adjustLabelWidths(layer) {
   if (!layer) return;
   const players = Array.from(layer.querySelectorAll(".player"));
   if (!players.length) return;
 
-  // Reset
   players.forEach(p => {
     const lbl = p.querySelector(".role-label");
     if (lbl) lbl.style.maxWidth = "";
@@ -2232,7 +2283,6 @@ function adjustLabelWidths(layer) {
   });
   if (items.length === 0) return;
 
-  // Iterative shrink
   for (let pass = 0; pass < 8; pass++) {
     const rects = items.map(it => ({...it, rect: it.labelEl.getBoundingClientRect()}));
     let didShrink = false;
@@ -2270,7 +2320,7 @@ window.addEventListener("resize", () => {
 });
 
 /* =========================================================
-   POINTER HANDLING (unified)
+   POINTER HANDLING
    ========================================================= */
 function attachPointer(el, p) {
   let dragging = false, startX, startY, origX, origY, pointerId = null;
@@ -2298,7 +2348,6 @@ function attachPointer(el, p) {
     moveDist = Math.abs(dx) + Math.abs(dy);
     p.x = Math.max(4, Math.min(96, origX + dx));
     p.y = Math.max(4, Math.min(96, origY + dy));
-    // Update both desktop and mobile instances
     document.querySelectorAll(`.player[data-id="${p.id}"]`).forEach(otherEl => {
       otherEl.style.left = p.x + "%";
       otherEl.style.top  = p.y + "%";
@@ -2374,7 +2423,6 @@ function showRoleMenu(playerId) {
   `;
 
   const isMobile = window.matchMedia("(max-width: 900px)").matches;
-  // Reference the visible player element (mobile or desktop)
   const refPlayerEl = (isMobile
     ? document.querySelector(`#mobilePitch .player[data-id="${playerId}"]`)
     : document.querySelector(`#pitch .player[data-id="${playerId}"]`))
@@ -2468,7 +2516,6 @@ function showRoleMenu(playerId) {
    TEAM INSTRUCTIONS
    ========================================================= */
 function renderTeamPanel() {
-  // Render both desktop and mobile versions
   const targets = [
     { ment: "#teamMent", ip: "#teamIP", it: "#teamIT", oop: "#teamOOP" },
     { ment: "#mobileTeamMent", ip: "#mobileTeamIP", it: "#mobileTeamIT", oop: "#mobileTeamOOP" }
@@ -2539,14 +2586,12 @@ function renderSummary() {
   if (wrap) wrap.innerHTML = html;
   if (mwrap) mwrap.innerHTML = html;
 
-  // Update mobile tab badge
   const badge = $("#sumTabBadge");
   const total = countSelected();
   if (badge) badge.textContent = total;
   const sumTotal = $("#sumTotal");
   if (sumTotal) sumTotal.textContent = total;
 
-  // Wire up remove buttons in both
   document.querySelectorAll(".si-remove").forEach(btn => {
     btn.onclick = (e) => {
       e.stopPropagation();
@@ -2678,6 +2723,7 @@ function applyTactic(data) {
   $("#phaseOOP").classList.toggle("active", state.phase === "OOP");
   renderMobileStyleOptions();
   renderMobileFormationOptions();
+  injectPitches();
   renderPitch();
   renderTeamPanel();
   closeRoleMenu();
@@ -2849,18 +2895,12 @@ function escapeHtml(s) {
 
 async function exportPNG() {
   try {
-    // Use desktop pitch SVG
     const svgEl = document.querySelector("#pitch svg");
     if (!svgEl) { toast("Export failed", "error"); return; }
     const svgClone = svgEl.cloneNode(true);
     const cs = getComputedStyle(document.documentElement);
     const grass1 = cs.getPropertyValue('--grass-1').trim() || '#1c5730';
     const grass2 = cs.getPropertyValue('--grass-2').trim() || '#175029';
-    const lineColor = cs.getPropertyValue('--line').trim() || 'rgba(255,255,255,.82)';
-    svgClone.querySelectorAll('[fill="var(--grass-1)"]').forEach(el => el.setAttribute('fill', grass1));
-    svgClone.querySelectorAll('[fill="var(--grass-2)"]').forEach(el => el.setAttribute('fill', grass2));
-    svgClone.querySelectorAll('[stroke="var(--line)"]').forEach(el => el.setAttribute('stroke', lineColor));
-    svgClone.querySelectorAll('[fill="var(--line)"]').forEach(el => el.setAttribute('fill', lineColor));
 
     const W = 680, H = 1050;
     const ns = "http://www.w3.org/2000/svg";
@@ -2985,7 +3025,6 @@ function activateMobileTab(tab) {
   document.querySelectorAll(".mobile-tab-content").forEach(c => {
     c.classList.toggle("active", c.dataset.tab === tab);
   });
-  // After switching to pitch tab, re-adjust label widths
   if (tab === "pitch") {
     setTimeout(() => adjustLabelWidths(document.querySelector("#mobilePitch .players-layer")), 80);
   }
@@ -3024,9 +3063,8 @@ $("#phaseOOP").onclick = () => {
   loadPlayersFromTactic();
 };
 
-/* Mobile phase buttons */
 document.addEventListener("click", e => {
-  if (e.target.id === "phaseIPMobile" || e.target.closest("#phaseIPMobile")) {
+  if (e.target.closest("#phaseIPMobile")) {
     state.phase = "IP";
     $("#phaseIPMobile").classList.add("active");
     $("#phaseOOPMobile").classList.remove("active");
@@ -3034,7 +3072,7 @@ document.addEventListener("click", e => {
     $("#phaseOOP").classList.remove("active");
     loadPlayersFromTactic();
   }
-  if (e.target.id === "phaseOOPMobile" || e.target.closest("#phaseOOPMobile")) {
+  if (e.target.closest("#phaseOOPMobile")) {
     state.phase = "OOP";
     $("#phaseOOPMobile").classList.add("active");
     $("#phaseIPMobile").classList.remove("active");
@@ -3068,7 +3106,7 @@ document.addEventListener("keydown", e => {
 document.addEventListener("dblclick", e => { e.preventDefault(); }, { passive: false });
 
 /* =========================================================
-   INIT: inject pitch SVG into both containers
+   INIT
    ========================================================= */
 function injectPitches() {
   const desktop = document.querySelector("#pitch");
@@ -3077,9 +3115,6 @@ function injectPitches() {
   if (mobile) mobile.innerHTML = getPitchSVGString();
 }
 
-/* =========================================================
-   START
-   ========================================================= */
 loadSettings();
 applyTheme();
 injectPitches();
